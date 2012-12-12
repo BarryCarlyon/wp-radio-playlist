@@ -1,5 +1,14 @@
 <?php
 
+/*
+ Plugin Name: WP Radio Playlist
+ Plugin URI: http://barrycarlyon.co.uk/
+ Description: Beep
+ Author: Barry Carlyon
+ Author URI: http://www.barrycarlyon.co.uk
+ Version: 0.0.1
+ */
+
 /**
 * Yeah it constructs....
 *
@@ -28,9 +37,9 @@ class Wordpress_Radio_Playlist
     {
         $this->setup();
 
-
         if (is_admin()) {
             include 'admin/admin.php';
+            new Wordpress_Radio_Playlist_Admin();
         } else {
             include 'front/front.php';
             new Wordpress_Radio_Playlist_Front();
@@ -59,59 +68,13 @@ class Wordpress_Radio_Playlist
     }
 
     /**
-    * Options init
-    */
-    public function init($santiy = false)
-    {
-        $options = get_option('wp-radio-playlist', false);
-        $save = false;
-        if (!$options) {
-            $options = $this->sanity_check();
-        } else {
-            $test = $this->sanity_check();
-            foreach ($test as $item => $value) {
-                if (!isset($options->$item)) {
-                    $save = TRUE;
-                    $options->$item = $value;
-                }
-            }
-        }
-        $this->options = $options;
-        if ($save) {
-            $this->saveoptions();
-        }
-        return;
-    }
-
-    /**
-    * Options
-    */
-    private function sanity_check()
-    {
-        $options = new stdClass();
-
-        $options->raw_posts_tracks = false;
-
-        return $options;
-    }
-
-    /**
-    * Save options
-    * @return bool success/fail of option saving
-    */
-    private function saveoptions()
-    {
-        return update_option('wp-radio-playlist', $this->options);
-    }
-
-    /**
     * Setup Custom Post Types things
     */
     public function post_types()
     {
         // custom post type - tracks
         register_post_type(
-            'wp_radio_playlist_track',
+            'wprp_track',
             array(
                 'label'                 => __('Tracks', 'wp-radio-playlist'),
                 'labels'                => array(
@@ -129,7 +92,7 @@ class Wordpress_Radio_Playlist
                     'parent_item_colon' => '',
                     'menu_name' => __('Tracks', 'wp-radio-playlist')
                 ),
-                'public'                => ($this->options->raw_posts_tracks ? TRUE : FALSE),
+                'public'                => (get_option('wp-radio-playlist-raw-posts-tracks', false) ? true : false),
                 'supports'              => array(
                     'title',
                     'custom-fields',
@@ -141,7 +104,41 @@ class Wordpress_Radio_Playlist
 //                'menu_icon'             => plugin_dir_url(__FILE__) . 'img/zombaio_icon.png',
             )
         );
+
         // custom post type - playlist
+        register_post_type(
+            'wprp_playlist',
+            array(
+                'label'                 => __('Playlists', 'wp-radio-playlist'),
+                'labels'                => array(
+                    'name' => __('Playlists', 'wp-radio-playlist'),
+                    'singular_name' => __('Playlist', 'wp-radio-playlist'),
+                    'add_new' => __('Add New', 'wp-radio-playlist'),
+                    'add_new_item' => __('Add New Playlist', 'wp-radio-playlist'),
+                    'edit_item' => __('Edit Playlist', 'wp-radio-playlist'),
+                    'new_item' => __('New Playlist', 'wp-radio-playlist'),
+                    'all_items' => __('All Playlists', 'wp-radio-playlist'),
+                    'view_item' => __('View Playlists', 'wp-radio-playlist'),
+                    'search_items' => __('Search Playlists', 'wp-radio-playlist'),
+                    'not_found' =>  __('No Playlists found', 'wp-radio-playlist'),
+                    'not_found_in_trash' => __('No Playlists found in Trash', 'wp-radio-playlist'), 
+                    'parent_item_colon' => '',
+                    'menu_name' => __('Playlists', 'wp-radio-playlist')
+                ),
+                'public'                => (get_option('wp-radio-playlist-raw-posts-playlists', false) ? true : false),
+                'supports'              => array(
+                    'title',
+                    'custom-fields',
+                ),
+                'has_archive'           => false,
+                'publicly_queryable'    => false,
+                'exclude_from_search'   => true,
+                'can_export'            => true,
+//                'menu_icon'             => plugin_dir_url(__FILE__) . 'img/zombaio_icon.png',
+            )
+        );
+
+        return;
     }
 }
 new Wordpress_Radio_Playlist();
