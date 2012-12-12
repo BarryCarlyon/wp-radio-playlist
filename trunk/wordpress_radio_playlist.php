@@ -12,10 +12,6 @@
 /**
 * Yeah it constructs....
 *
-* $Id: ym.php 2465 2012-12-06 15:48:46Z bcarlyon $
-* $Revision: 2465 $
-* $Date: 2012-12-06 15:48:46 +0000 (Thu, 06 Dec 2012) $
-*
 * PHP Version 5
 * 
 * @category WordPres_Plugins
@@ -128,6 +124,7 @@ class Wordpress_Radio_Playlist
                 'public'                => (get_option('wp-radio-playlist-raw-posts-playlists', false) ? true : false),
                 'supports'              => array(
                     'title',
+                    'editor',
                     'custom-fields',
                 ),
                 'has_archive'           => false,
