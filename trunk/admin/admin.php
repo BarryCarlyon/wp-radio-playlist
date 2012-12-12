@@ -76,7 +76,7 @@ class Wordpress_Radio_Playlist_Admin
     */
     public function admin_menu()
     {
-        add_options_page(__('WP Radio Playlist', 'wp-radio-playlist'), __('WP Radio Playlist', 'wp-radio-playlist'), 'activate_plugins', 'wp-radio-playlist-settings', array($this, 'general_settings_page'));
+        add_options_page(__('WP Radio Playlist', 'wp-radio-playlist'), __('WP Radio Playlist', 'wp-radio-playlist'), 'activate_plugins', 'wp-radio-playlist-settings', array($this, 'settings_page'));
     }
 
     /**
@@ -94,7 +94,7 @@ class Wordpress_Radio_Playlist_Admin
     /**
     * General Settings page
     */
-    public function general_settings_page()
+    public function settings_page()
     {
         echo '<form method="post" action="options.php">';
         settings_fields('wp-radio-playlist-settings');
@@ -119,6 +119,9 @@ class Wordpress_Radio_Playlist_Admin
         $this->bool('wp-radio-playlist-raw-posts-playlists');
     }
 
+    /**
+    * Input types
+    */
     private function bool($option)
     {
         echo '<input name="' . $option . '" id="' . $option . '" type="checkbox" value="1" class="code" ' . checked( 1, get_option($option), false ) . ' />';
