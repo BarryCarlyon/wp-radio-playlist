@@ -13,15 +13,15 @@ class Wordpress_Radio_Playlist_Admin_Ajax
 {
     function wp_ajax_wprp_artist()
     {
-        $this->post_search('wprp_artist');
+        Wordpress_Radio_Playlist_Admin_Ajax::post_search('wprp_artist');
     }
 
     function wp_ajax_wprp_track()
     {
-        $this->post_search('wprp_track');
+        Wordpress_Radio_Playlist_Admin_Ajax::post_search('wprp_track');
     }
 
-    private function post_search($post_type)
+    static protected function post_search($post_type)
     {
         global $wpdb;
 

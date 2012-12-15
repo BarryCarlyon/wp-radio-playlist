@@ -69,8 +69,8 @@ class Wordpress_Radio_Playlist_Admin
 ?>
 <script type="text/javascript">
 jQuery(document).ready(function() {
-    jQuery('.wprp_artist').suggest(ajax_url + '?action=wprp_artist');
-    jQuery('.wprp_track').suggest(ajax_url + '?action=wprp_track');
+    jQuery('.wprp_artist').suggest(ajaxurl + '?action=wprp_artist');
+    jQuery('.wprp_track').suggest(ajaxurl + '?action=wprp_track');
 });
 </script>
 <?php
