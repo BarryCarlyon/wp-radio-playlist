@@ -44,7 +44,7 @@ jQuery(document).ready(function() {
         $search = like_escape($_REQUEST['q']);
 
         $query = 'SELECT ID,post_title FROM ' . $wpdb->posts . '
-            WHERE post_title LIKE \'' . $search . '%\'
+            WHERE post_title LIKE \'%' . $search . '%\'
             AND post_type = \'' . $post_type . '\'
             AND post_status = \'publish\'
             ORDER BY post_title ASC';

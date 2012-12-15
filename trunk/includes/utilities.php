@@ -38,3 +38,21 @@ function wprp_request($item, $default = '')
     }
     return $data;
 }
+
+function wprp_getpost_by_title($search, $post_type)
+{
+    global $wpdb;
+
+    $query = 'SELECT ID FROM ' . $wpdb->posts . '
+        WHERE post_title LIKE \'' . $search . '\'
+        AND post_type = \'' . $post_type . '\'
+        AND post_status = \'publish\'
+        ORDER BY post_title ASC
+        LIMIT 1';// there SHOULD only ever be one...
+    $results = $wpdb->get_results($query);
+    if ($wpdb->num_rows == 1)
+    {
+        return $wpdb->get_var($query);
+    }
+    return false;
+}
