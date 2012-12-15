@@ -18,6 +18,7 @@ class Wordpress_Radio_Playlist_Admin
     */
     function __construct()
     {
+        include 'ajax.php';
         $this->setup();
     }
 
@@ -28,6 +29,12 @@ class Wordpress_Radio_Playlist_Admin
     {
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_menu', array($this, 'admin_menu'));
+        add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
+        add_action('admin_head', array($this, 'admin_head'));
+
+        // ajax
+        add_action('wp_ajax_wprp_artist', array('Wordpress_Radio_Playlist_Admin_Ajax', 'wp_ajax_wprp_artist'));
+        add_action('wp_ajax_wprp_track', array('Wordpress_Radio_Playlist_Admin_Ajax', 'wp_ajax_wprp_track'));
     }
 
     /**
@@ -51,10 +58,33 @@ class Wordpress_Radio_Playlist_Admin
     }
 
     /**
+    * Scripts
+    */
+    public function admin_scripts()
+    {
+        wp_enqueue_script('suggest');
+    }
+    public function admin_head()
+    {
+?>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery('.wprp_artist').suggest(ajax_url + '?action=wprp_artist');
+    jQuery('.wprp_track').suggest(ajax_url + '?action=wprp_track');
+});
+</script>
+<?php
+    }
+
+    /**
     * admin init
     */
     public function admin_init()
     {
+        /**
+        Ajax
+        */
+
         /**
         Settings API
         */
@@ -83,6 +113,13 @@ class Wordpress_Radio_Playlist_Admin
             'wp-radio-playlist-settings',
             'wp-radio-playlist-settings-general'
         );
+        add_settings_field(
+            'wp-radio-playlist-tracks-in-list',
+            __('Number of Tracks in a Playlist', 'wp-radio-playlist'),
+            array($this, 'tracksinlist'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-general'
+        );
 
         add_settings_field(
             'wp-radio-playlist-raw-posts-tracks',
@@ -92,6 +129,12 @@ class Wordpress_Radio_Playlist_Admin
             'wp-radio-playlist-settings-debug'
         );
         add_settings_field(
+            'wp-radio-playlist-raw-posts-artists',
+            __('Show Raw Artists Post Editor', 'wp-radio-playlist'),
+            array($this, 'raw_posts_artists'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-debug'
+        );        add_settings_field(
             'wp-radio-playlist-raw-posts-playlists',
             __('Show Raw Playlists Post Editor', 'wp-radio-playlist'),
             array($this, 'raw_posts_playlists'),
@@ -102,8 +145,10 @@ class Wordpress_Radio_Playlist_Admin
         // register option
         // option group, option name, sanitize callback function
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-wprole');
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-tracks-in-list');
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-playlists');
     }
 
@@ -135,6 +180,8 @@ class Wordpress_Radio_Playlist_Admin
 
         echo '<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="' . __('Save Changes', 'wp-radio-playlist') . '"></p>';
         echo '</form>';
+
+        echo '</div>';
     }
 
     /**
@@ -151,25 +198,44 @@ class Wordpress_Radio_Playlist_Admin
 
         $this->option('wp-radio-playlist-wprole', $options, 'Administrator');
     }
+    public function tracksinlist()
+    {
+        $this->number('wp-radio-playlist-tracks-in-list', 20);
+    }
     public function raw_posts_tracks()
     {
-        $this->bool('wp-radio-playlist-raw-posts-tracks');
+        $this->bool('wp-radio-playlist-raw-posts-tracks', 0);
+    }
+    public function raw_posts_artists()
+    {
+        $this->bool('wp-radio-playlist-raw-posts-artists', 0);
     }
     public function raw_posts_playlists()
     {
-        $this->bool('wp-radio-playlist-raw-posts-playlists');
+        $this->bool('wp-radio-playlist-raw-posts-playlists', 0);
     }
 
     /**
     * Input types
     */
-    private function bool($option)
+    private function bool($option, $default)
     {
-        echo '<input name="' . $option . '" id="' . $option . '" type="checkbox" value="1" class="code" ' . checked( 1, get_option($option), false ) . ' />';
+        echo '<input name="' . $option . '" id="' . $option . '" type="checkbox" value="1" class="code" ' . checked( 1, get_option($option, $default), false ) . ' />';
     }
-    private function text($option)
+    private function text($option, $default)
     {
-        echo '<input name="' . $option . '" id="' . $option . '" type="text" value="' . get_option($option) . '" class="code" />';
+        echo '<input name="' . $option . '" id="' . $option . '" type="text" value="' . get_option($option, $default) . '" class="code" />';
+    }
+    private function number($option, $default, $args = array())
+    {
+        $args = array(
+            'step'      => isset($args['step']) ? $args['step'] : 1,
+            'min'       => isset($args['min']) ? $args['min'] : 1,
+            'max'       => isset($args['max']) ? $args['max'] : 999,
+            'maxlength' => isset($args['maxlength']) ? $args['maxlength'] : 3,
+        );
+
+        echo '<input name="' . $option . '" id="' . $option . '" type="number" value="' . get_option($option, $default) . '" min="' . $args['min'] . '" max="' . $args['max'] . '" step="' . $args['step'] . '" maxlength="' . $args['maxlength'] . '" />';
     }
     private function option($option, $options, $default)
     {
@@ -187,6 +253,41 @@ class Wordpress_Radio_Playlist_Admin
 
     public function wprp_playlist_index()
     {
-        
+        echo '<div class="wrap">';
+        screen_icon();
+        echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . '</h2>';
+
+        echo '<form method="post" action="">';
+        wp_nonce_field('wprp_playlist_create');
+
+        echo '<table class="widefat">';
+        echo '
+<thead>
+    <tr><th>#</th>
+    <th>' . __('Artist', 'wp-radio-playlist') . '</th>
+    <th>' . __('Track', 'wp-radio-playlist') . '</th>
+</thead>
+<tfoot>
+    <tr><th>#</th>
+    <th>' . __('Artist', 'wp-radio-playlist') . '</th>
+    <th>' . __('Track', 'wp-radio-playlist') . '</th>
+</tfoot>
+';
+        echo '<tbody>';
+        for ($x = 1; $x <= get_option('wp-radio-playlist-tracks-in-list', 20); $x++)
+        {
+            echo '<tr>';
+            echo '<td>' . $x . '</td>';
+            echo '<td><input type="text" class="wprp_artist" name"artist[' . $x . ']" style="width: 100%;" /></td>';
+            echo '<td><input type="text" class="wprp_track" name"track[' . $x . ']" style="width: 100%;" /></td>';
+            echo '</tr>';
+        }
+        echo '</tbody>';
+        echo '</table>';
+
+        echo '<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary alignright" value="' . __('Submit Playlist', 'wp-radio-playlist') . '"></p>';        
+        echo '</form>';
+
+        echo '</div>';
     }
 }
