@@ -256,7 +256,7 @@ class Wordpress_Radio_Playlist_Admin
 
                     if ($artist && $track)
                     {
-                        $artist_id = wprp_getpost_by_title($artist, 'wprp_artist');
+                        $artist_id = wprp_get_artist_id($artist);
                         if (!$artist_id)
                         {
                             $post = array(
@@ -265,6 +265,18 @@ class Wordpress_Radio_Playlist_Admin
                                 'post_type' => 'wprp_artist'
                             );
                             $artist_id = wp_insert_post($post);
+                        }
+
+                        $track_id = wprp_get_track_id_by_artist_id($track, $artist_id);
+                        if (!$track_id)
+                        {
+                            $post = array(
+                                'post_status' => 'publish',
+                                'post_title' => $track,
+                                'post_type' => 'wprp_track'
+                            );
+                            $track_id = wp_insert_post($post);
+                            update_post_meta($track_id, 'wprp_artist', $artist_id);
                         }
                     }
                 }

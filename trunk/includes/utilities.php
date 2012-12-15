@@ -39,14 +39,36 @@ function wprp_request($item, $default = '')
     return $data;
 }
 
-function wprp_getpost_by_title($search, $post_type)
+function wprp_get_artist_id($search)
 {
     global $wpdb;
 
-    $query = 'SELECT ID FROM ' . $wpdb->posts . '
+    $query = 'SELECT ID as artist_id FROM ' . $wpdb->posts . '
         WHERE post_title LIKE \'' . $search . '\'
-        AND post_type = \'' . $post_type . '\'
+        AND post_type = \'wprp_artist\'
         AND post_status = \'publish\'
+        ORDER BY post_title ASC
+        LIMIT 1';// there SHOULD only ever be one...
+    $results = $wpdb->get_results($query);
+    if ($wpdb->num_rows == 1)
+    {
+        return $wpdb->get_var($query);
+    }
+    return false;
+}
+
+function wprp_get_track_id_by_artist_id($search, $artist_id)
+{
+    global $wpdb;
+
+    $query = 'SELECT p.ID AS track_id FROM ' . $wpdb->posts . ' p
+        LEFT JOIN ' . $wpdb->postmeta . ' pm
+        ON pm.post_id = p.id
+        WHERE post_title LIKE \'' . $search . '\'
+        AND post_type = \'wprp_track\'
+        AND post_status = \'publish\'
+        AND meta_key = \'wprp_artist\'
+        AND meta_value = \'' . $artist_id . '\'
         ORDER BY post_title ASC
         LIMIT 1';// there SHOULD only ever be one...
     $results = $wpdb->get_results($query);
