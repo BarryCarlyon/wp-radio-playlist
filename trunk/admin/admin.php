@@ -29,8 +29,9 @@ class Wordpress_Radio_Playlist_Admin
     {
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_menu', array($this, 'admin_menu'));
-        add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
-        add_action('admin_head', array($this, 'admin_head'));
+
+        add_action('admin_enqueue_scripts', array('Wordpress_Radio_Playlist_Admin_Ajax', 'admin_scripts'));
+        add_action('admin_head', array('Wordpress_Radio_Playlist_Admin_Ajax', 'admin_head'));
 
         // ajax
         add_action('wp_ajax_wprp_artist', array('Wordpress_Radio_Playlist_Admin_Ajax', 'wp_ajax_wprp_artist'));
@@ -60,21 +61,6 @@ class Wordpress_Radio_Playlist_Admin
     /**
     * Scripts
     */
-    public function admin_scripts()
-    {
-        wp_enqueue_script('suggest');
-    }
-    public function admin_head()
-    {
-?>
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    jQuery('.wprp_artist').suggest(ajaxurl + '?action=wprp_artist');
-    jQuery('.wprp_track').suggest(ajaxurl + '?action=wprp_track');
-});
-</script>
-<?php
-    }
 
     /**
     * admin init

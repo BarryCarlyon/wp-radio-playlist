@@ -11,6 +11,22 @@
 */
 class Wordpress_Radio_Playlist_Admin_Ajax
 {
+    function admin_scripts()
+    {
+        wp_enqueue_script('suggest');
+    }
+    function admin_head()
+    {
+?>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery('.wprp_artist').suggest(ajaxurl + '?action=wprp_artist');
+    jQuery('.wprp_track').suggest(ajaxurl + '?action=wprp_track');
+});
+</script>
+<?php
+    }
+
     function wp_ajax_wprp_artist()
     {
         Wordpress_Radio_Playlist_Admin_Ajax::post_search('wprp_artist');
