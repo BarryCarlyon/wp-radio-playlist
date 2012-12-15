@@ -13,12 +13,12 @@ class Wordpress_Radio_Playlist_Admin_Ajax
 {
     function wp_ajax_wprp_artist()
     {
-        $this->post_search('wprp_artist'));
+        $this->post_search('wprp_artist');
     }
 
     function wp_ajax_wprp_track()
     {
-        $this->post_search('wprp_track'));
+        $this->post_search('wprp_track');
     }
 
     private function post_search($post_type)
