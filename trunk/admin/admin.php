@@ -245,8 +245,6 @@ class Wordpress_Radio_Playlist_Admin
             {
                 echo '<div id="message" class="error"><p>' . __('Nonce Failed Verfication', 'wp-radio-playlist') . '</p></div>';
             } else {
-//                print_r($_POST);
-
                 $artists = wprp_post('artist', array());
                 $tracks = wprp_post('track', array());
 
@@ -258,33 +256,15 @@ class Wordpress_Radio_Playlist_Admin
 
                     if ($artist && $track)
                     {
-                        echo 'creating ' . '<br />';
-/*
-                        $args = array(
-                            'post_title' => $artist
-                        );
-                        $posts = get_posts($args);
-                        if (count($posts))
-                        {
-                            print_r($posts);
-                            echo 'found ' . '<br />';
-                            $artist_id = $posts[0]->id;
-                        } else {
-*/
                         $artist_id = wprp_getpost_by_title($artist, 'wprp_artist');
                         if (!$artist_id)
                         {
-                            echo 'crate not found';
                             $post = array(
                                 'post_status' => 'publish',
                                 'post_title' => $artist,
                                 'post_type' => 'wprp_artist'
                             );
-                            print_r($post);
-                            $artist_id = wp_insert_post($post, true);
-                            if (is_wp_error($artist_id)) {
-                                print_r($artist_id);
-                            }
+                            $artist_id = wp_insert_post($post);
                         }
                     }
                 }
