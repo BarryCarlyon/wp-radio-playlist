@@ -239,12 +239,24 @@ class Wordpress_Radio_Playlist_Admin
 
     public function wprp_playlist_index()
     {
+        if ($_POST)
+        {
+            if (!wp_verify_nonce($_POST['_wpnonce'], 'wprp_playlist_create'))
+            {
+                echo '<div id="message" class="error"><p>' . __('Nonce Failed Verfication', 'wp-radio-playlist') . '</p></div>';
+            } else {
+                print_r($_POST);
+            }
+        }
         echo '<div class="wrap">';
         screen_icon();
         echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . '</h2>';
 
         echo '<form method="post" action="">';
         wp_nonce_field('wprp_playlist_create');
+
+        $artists = wprp_post('artist', array());
+        $tracks = wprp_post('track', array());
 
         echo '<table class="widefat">';
         echo '
@@ -262,10 +274,13 @@ class Wordpress_Radio_Playlist_Admin
         echo '<tbody>';
         for ($x = 1; $x <= get_option('wp-radio-playlist-tracks-in-list', 20); $x++)
         {
+            $artist = isset($artists[$x]) ? $artists[$x] : '';
+            $track = isset($tracks[$x]) ? $tracks[$x] : '';
+
             echo '<tr>';
             echo '<td>' . $x . '</td>';
-            echo '<td><input type="text" class="wprp_artist" name"artist[' . $x . ']" style="width: 100%;" /></td>';
-            echo '<td><input type="text" class="wprp_track" name"track[' . $x . ']" style="width: 100%;" /></td>';
+            echo '<td><input type="text" class="wprp_artist" name="artist[' . $x . ']" style="width: 100%;" value="' . $artist . '" /></td>';
+            echo '<td><input type="text" class="wprp_track" name="track[' . $x . ']" style="width: 100%;" value="' . $track . '" /></td>';
             echo '</tr>';
         }
         echo '</tbody>';

@@ -32,6 +32,7 @@ class Wordpress_Radio_Playlist
     public function __construct()
     {
         $this->setup();
+        include 'includes/utilities.php';
 
         if (is_admin()) {
             include 'admin/admin.php';
