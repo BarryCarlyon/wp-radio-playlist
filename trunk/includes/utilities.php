@@ -2,7 +2,7 @@
 
 function wprp_post($item, $default = '')
 {
-    $data = isset($_POST[$item]) ? $_POST[$item] : $default;
+    $data = (isset($_POST[$item]) && $_POST[$item]) ? $_POST[$item] : $default;
     if (is_array($data)) {
         foreach ($data as $key => &$item) {
             $item = sanitize_text_field($item);
@@ -15,7 +15,7 @@ function wprp_post($item, $default = '')
 
 function wprp_get($item, $default = '')
 {
-    $data = isset($_GET[$item]) ? $_GET[$item] : $default;
+    $data = (isset($_GET[$item]) && $_GET[$item]) ? $_GET[$item] : $default;
     if (is_array($data)) {
         foreach ($data as $key => &$item) {
             $item = sanitize_text_field($item);
@@ -28,7 +28,7 @@ function wprp_get($item, $default = '')
 
 function wprp_request($item, $default = '')
 {
-    $data = isset($_REQUEST[$item]) ? $_REQUEST[$item] : $default;
+    $data = (isset($_REQUEST[$item]) && $_REQUEST[$item]) ? $_REQUEST[$item] : $default;
     if (is_array($data)) {
         foreach ($data as $key => &$item) {
             $item = sanitize_text_field($item);

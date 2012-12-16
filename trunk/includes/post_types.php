@@ -23,6 +23,7 @@ register_post_type(
         'public'                => (get_option('wp-radio-playlist-raw-posts-tracks', false) ? true : false),
         'supports'              => array(
             'title',
+            'editor',
             'custom-fields',
         ),
         'has_archive'           => false,
