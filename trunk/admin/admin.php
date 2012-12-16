@@ -30,12 +30,27 @@ class Wordpress_Radio_Playlist_Admin
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_menu', array($this, 'admin_menu'));
 
-        add_action('admin_enqueue_scripts', array('Wordpress_Radio_Playlist_Admin_Ajax', 'admin_scripts'));
-        add_action('admin_head', array('Wordpress_Radio_Playlist_Admin_Ajax', 'admin_head'));
+        add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
+        add_action('admin_head', array($this, 'admin_head'));
 
         // ajax
-        add_action('wp_ajax_wprp_artist', array('Wordpress_Radio_Playlist_Admin_Ajax', 'wp_ajax_wprp_artist'));
-        add_action('wp_ajax_wprp_track', array('Wordpress_Radio_Playlist_Admin_Ajax', 'wp_ajax_wprp_track'));
+        new Wordpress_Radio_Playlist_Admin_Ajax();
+    }
+
+    function admin_scripts()
+    {
+        wp_enqueue_style('jquery-ui', 'http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css');
+        wp_enqueue_script('jquery-ui-datepicker');
+    }
+    function admin_head()
+    {
+?>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery('.wprp_date').datepicker();
+});
+</script>
+<?php
     }
 
     /**
@@ -248,6 +263,8 @@ class Wordpress_Radio_Playlist_Admin
                 $artists = wprp_post('artist', array());
                 $tracks = wprp_post('track', array());
 
+                $playlist = array();
+
                 for ($x = 1; $x <= get_option('wp-radio-playlist-tracks-in-list', 20); $x++)
                 {
                     // artist
@@ -278,6 +295,8 @@ class Wordpress_Radio_Playlist_Admin
                             $track_id = wp_insert_post($post);
                             update_post_meta($track_id, 'wprp_artist', $artist_id);
                         }
+
+                        $playlist[$x] = array($artist_id, $track_id);
                     }
                 }
             }
@@ -293,6 +312,29 @@ class Wordpress_Radio_Playlist_Admin
         $tracks = wprp_post('track', array());
 
         echo '<table class="widefat">';
+        echo '<tbody>';
+
+        // data
+        echo '<tr>';
+        echo '<th>';
+        echo __('Start Date', 'wp-radio-playlist');
+        echo '</th>';
+        echo '<td><input type="text" name="start_date" id="start_date" class="wprp_date" /></td>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<th>';
+        echo __('End Date', 'wp-radio-playlist');
+        echo '</th>';
+        echo '<td><input type="text" name="end_date" id="end_date" class="wprp_date" /></td>';
+        echo '</tr>';
+
+        echo '</tbody>';
+        echo '</table>';
+
+        echo '<hr />';
+
+        echo '<table class="widefat">';
         echo '
 <thead>
     <tr><th>#</th>
@@ -306,6 +348,7 @@ class Wordpress_Radio_Playlist_Admin
 </tfoot>
 ';
         echo '<tbody>';
+        // tracks
         for ($x = 1; $x <= get_option('wp-radio-playlist-tracks-in-list', 20); $x++)
         {
             $artist = isset($artists[$x]) ? $artists[$x] : '';

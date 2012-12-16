@@ -11,6 +11,12 @@
 */
 class Wordpress_Radio_Playlist_Admin_Ajax
 {
+    function __construct() {
+        add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
+        add_action('admin_head', array($this, 'admin_head'));
+        add_action('wp_ajax_wprp_artist', array($this, 'wp_ajax_wprp_artist'));
+        add_action('wp_ajax_wprp_track', array($this, 'wp_ajax_wprp_track'));
+    }
     function admin_scripts()
     {
         wp_enqueue_script('suggest');
@@ -37,7 +43,7 @@ jQuery(document).ready(function() {
         Wordpress_Radio_Playlist_Admin_Ajax::post_search('wprp_track');
     }
 
-    static protected function post_search($post_type)
+    private function post_search($post_type)
     {
         global $wpdb;
 
