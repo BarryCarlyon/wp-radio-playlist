@@ -76,6 +76,7 @@ jQuery(document).ready(function() {
         }
 
         add_menu_page(__('Playlists', 'wp-radio-playlist'), __('Playlists', 'wp-radio-playlist'), $this->target_role, 'wprp_playlist', array($this, 'wprp_playlist_index'));
+        add_submenu_page('wprp_playlist', __('Create Playlist', 'wp-radio-playlist'), __('Create Playlist', 'wp-radio-playlist'), $this->target_role, 'wprp_playlist_create', array($this, 'wprp_playlist_create'));
     }
 
     /**
@@ -87,6 +88,72 @@ jQuery(document).ready(function() {
 
     public function wprp_playlist_index()
     {
+        $playlists = array(
+            'numberposts' => 10,
+            'offset' => 0,
+
+            'post_type' => 'wprp_playlist',
+            'post_status' => array(
+                'publish',
+                'future'
+            ),
+        );
+        $playlists = get_posts($playlists);
+
+        echo '<div class="wrap">';
+
+        echo '<a href="?page=wprp_playlist_create" class="button-secondary alignright" style="margin-top: 10px;">' . __('Create', 'wp-radio-playlist') . '</a>';
+
+        screen_icon();
+        echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . '</h2>';
+
+        echo '<table class="widefat">';
+
+        echo '<thead>';
+        echo '
+<tr>
+    <th>' . __('ID', 'wp-radio-playlist') . '</th>
+    <th>' . __('Tracks', 'wp-radio-playlist') . '</th>
+    <th>' . __('Date', 'wp-radio-playlist') . '</th>
+</tr>
+';
+        echo '</thead>';
+        echo '<tfoot>';
+        echo '
+<tr>
+    <th>' . __('ID', 'wp-radio-playlist') . '</th>
+    <th>' . __('Tracks', 'wp-radio-playlist') . '</th>
+    <th>' . __('Date', 'wp-radio-playlist') . '</th>
+</tr>
+';
+        echo '</tfoot>';
+
+        echo '<tbody>';
+
+        if (!count($playlists)) {
+            echo '<tr><td colspan="10">' . __('No Playlists to Show', 'wp-radio-playlist') . '</td></tr>';
+        } else {
+            foreach ($playlists as $playlist)
+            {
+                echo '<tr>';
+                echo '<td>' . $playlist->ID . '</td>';
+
+                echo '<td>' . get_post_meta($playlist->ID, 'wprp_playlist_tracks', true);
+
+                $date = split(' ', $playlist->post_date);
+                echo '<td>' . $date[0] . '</td>';
+
+                echo '</tr>';
+            }
+        }
+
+        echo '</tbody>';
+
+        echo '</table>';
+        echo '</div>';
+    }
+
+    public function wprp_playlist_create() {
         if ($_POST)
         {
             if (!wp_verify_nonce($_POST['_wpnonce'], 'wprp_playlist_create'))
@@ -156,11 +223,12 @@ jQuery(document).ready(function() {
                 {
                     update_post_meta($playlist_id, 'wprp_playlist_' . $index, implode(',', $item));
                 }
+                update_post_meta($playlist_id, 'wprp_playlist_tracks', count($playlist));
             }
         }
         echo '<div class="wrap">';
         screen_icon();
-        echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . '</h2>';
+        echo '<h2>' . __('WP Radio Playlist | Create', 'wp-radio-playlist') . '</h2>';
 
         echo '<form method="post" action="">';
         wp_nonce_field('wprp_playlist_create');
