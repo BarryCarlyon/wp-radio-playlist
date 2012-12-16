@@ -131,31 +131,30 @@ jQuery(document).ready(function() {
 
                         $playlist[$x] = array($artist_id, $track_id);
                     }
+                }
 
-                    // create the playlist entry
-                    $json = json_encode($playlist);
-                    //Y-m-d
-                    $start = wprp_post('start_date');
-                    $format = explode('/', $this->php_date_format);
-                    if ($this->php_date_format == 'm/d/Y') {
-                        $post_date = $start[2] . '=' . $start[0] . '-' . $start[1];
-                    } else {
-                        $post_date = $start[2] . '=' . $start[1] . '-' . $start[0];
-                    }
-                    $post = array(
+                // create the playlist entry
+                $json = json_encode($playlist);
+                //Y-m-d
+                $start = explode('/', wprp_post('start_date'));
+                if ($this->php_date_format == 'm/d/Y') {
+                    $post_date = $start[2] . '-' . $start[0] . '-' . $start[1];
+                } else {
+                    $post_date = $start[2] . '-' . $start[1] . '-' . $start[0];
+                }
+                $post = array(
 //                        'post_content' => $json,
-                        'post_date' => $post_date . ' 00:00:00',//ymd his
-                        'post_status' => 'publish',
-                        'post_title' => wprp_post('post_title', __('Playlist', 'wp-radio-playlist') . ' ' . wprp_post('start_date')),
-                        'post_type' => 'wprp_playlist',
-                    );
-                    $playlist_id = wp_insert_post($post);
+                    'post_date' => $post_date . ' 00:00:00',//ymd his
+                    'post_status' => 'publish',
+                    'post_title' => wprp_post('post_title', __('Playlist', 'wp-radio-playlist') . ' ' . wprp_post('start_date')),
+                    'post_type' => 'wprp_playlist',
+                );
+                $playlist_id = wp_insert_post($post);
 
-                    update_post_meta($playlist_id, 'wprp_json', $json);
-                    foreach ($playlist as $index => $item)
-                    {
-                        update_post_meta($playlist_id, 'wprp_playlist_' . $index, implode(',', $item));
-                    }
+                update_post_meta($playlist_id, 'wprp_json', $json);
+                foreach ($playlist as $index => $item)
+                {
+                    update_post_meta($playlist_id, 'wprp_playlist_' . $index, implode(',', $item));
                 }
             }
         }
