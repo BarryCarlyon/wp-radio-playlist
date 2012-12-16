@@ -79,11 +79,9 @@ function wprp_get_track_id_by_artist_id($search, $artist_id)
     return false;
 }
 
-function wprp_next_monday() {
-    return strtotime('Monday');
-    $now = time();
-    while (date('D', $now) != 'Mon') {
-        $now = $now + (60 * 60 * 24);
+function wprp_next_monday($format = false) {
+    if ($format) {
+        return date($format, strtotime('Monday'));
     }
+    return strtotime('Monday');
 }
-echo date('r', wprp_next_monday());exit;

@@ -12,6 +12,8 @@
 class Wordpress_Radio_Playlist_Admin
 {
     private $access_role;
+    private $php_date_format;
+    private $jquery_date_format;
 
     /**
     * Yeah it constructs....
@@ -47,7 +49,7 @@ class Wordpress_Radio_Playlist_Admin
 ?>
 <script type="text/javascript">
 jQuery(document).ready(function() {
-    jQuery('.wprp_date').datepicker();
+    jQuery('.wprp_date').datepicker({dateFormat: '<?php echo $this->jquery_date_format; ?>'});
 });
 </script>
 <?php
@@ -82,9 +84,9 @@ jQuery(document).ready(function() {
     */
     public function admin_init()
     {
-        /**
-        Ajax
-        */
+        $formats = split('-', get_option('wp-radio-playlist-dateformat', 'mm/dd/yy-m/d/Y'));
+        $this->php_date_format = $formats[1];
+        $this->jquery_date_format = $formats[0];
 
         /**
         Settings API
@@ -123,6 +125,14 @@ jQuery(document).ready(function() {
         );
 
         add_settings_field(
+            'wp-radio-playlist-dateformat',
+            __('Date Format', 'wp-radio-playlist'),
+            array($this, 'dateformat'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-general'
+        );
+
+        add_settings_field(
             'wp-radio-playlist-raw-posts-tracks',
             __('Show Raw Tracks Post Editor', 'wp-radio-playlist'),
             array($this, 'raw_posts_tracks'),
@@ -147,6 +157,8 @@ jQuery(document).ready(function() {
         // option group, option name, sanitize callback function
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-wprole');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-tracks-in-list');
+
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-dateformat');
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
@@ -203,6 +215,14 @@ jQuery(document).ready(function() {
     {
         $this->number('wp-radio-playlist-tracks-in-list', 20);
     }
+    public function dateformat() {
+        $options = array(
+            'mm/dd/yy-m/d/Y' => 'm/d/y',
+            'dd/mm/yy-d/m/Y' => 'd/m/y',
+        );
+        $this->option('wp-radio-playlist-dateformat', $options, 'mm/dd/yy-m/d/Y');
+    }
+
     public function raw_posts_tracks()
     {
         $this->bool('wp-radio-playlist-raw-posts-tracks', 0);
@@ -311,9 +331,9 @@ jQuery(document).ready(function() {
         $artists = wprp_post('artist', array());
         $tracks = wprp_post('track', array());
 
-        $start_date = $end_date = '';
+        $start_date = '';
 
-        $start_date = wprp_next_monday();
+        $start_date = wprp_next_monday($this->php_date_format);
 
         echo '<table class="widefat">';
         echo '<tbody>';
@@ -326,12 +346,14 @@ jQuery(document).ready(function() {
         echo '<td><input type="text" name="start_date" id="start_date" class="wprp_date" value="' . $start_date . '" /></td>';
         echo '</tr>';
 
+/*
         echo '<tr>';
         echo '<th>';
         echo __('End Date', 'wp-radio-playlist');
         echo '</th>';
         echo '<td><input type="text" name="end_date" id="end_date" class="wprp_date" value="' . $end_date . '" /></td>';
         echo '</tr>';
+*/
 
         echo '</tbody>';
         echo '</table>';
