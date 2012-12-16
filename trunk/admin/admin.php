@@ -311,6 +311,10 @@ jQuery(document).ready(function() {
         $artists = wprp_post('artist', array());
         $tracks = wprp_post('track', array());
 
+        $start_date = $end_date = '';
+
+        $start_date = wprp_next_monday();
+
         echo '<table class="widefat">';
         echo '<tbody>';
 
@@ -319,14 +323,14 @@ jQuery(document).ready(function() {
         echo '<th>';
         echo __('Start Date', 'wp-radio-playlist');
         echo '</th>';
-        echo '<td><input type="text" name="start_date" id="start_date" class="wprp_date" /></td>';
+        echo '<td><input type="text" name="start_date" id="start_date" class="wprp_date" value="' . $start_date . '" /></td>';
         echo '</tr>';
 
         echo '<tr>';
         echo '<th>';
         echo __('End Date', 'wp-radio-playlist');
         echo '</th>';
-        echo '<td><input type="text" name="end_date" id="end_date" class="wprp_date" /></td>';
+        echo '<td><input type="text" name="end_date" id="end_date" class="wprp_date" value="' . $end_date . '" /></td>';
         echo '</tr>';
 
         echo '</tbody>';
