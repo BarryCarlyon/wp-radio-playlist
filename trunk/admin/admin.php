@@ -20,8 +20,8 @@ class Wordpress_Radio_Playlist_Admin
     */
     function __construct()
     {
-        include 'ajax.php';
-        include 'settings.php';
+        include_once 'ajax.php';
+        include_once 'settings.php';
         $this->setup();
     }
 
@@ -30,6 +30,10 @@ class Wordpress_Radio_Playlist_Admin
     */
     private function setup()
     {
+        $formats = split('-', get_option('wp-radio-playlist-dateformat', 'mm/dd/yy-m/d/Y'));
+        $this->php_date_format = $formats[1];
+        $this->jquery_date_format = $formats[0];
+
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_menu', array($this, 'admin_menu'));
 
@@ -79,9 +83,6 @@ jQuery(document).ready(function() {
     */
     public function admin_init()
     {
-        $formats = split('-', get_option('wp-radio-playlist-dateformat', 'mm/dd/yy-m/d/Y'));
-        $this->php_date_format = $formats[1];
-        $this->jquery_date_format = $formats[0];
     }
 
     public function wprp_playlist_index()
