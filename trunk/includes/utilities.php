@@ -44,7 +44,7 @@ function wprp_get_artist_id($search)
     global $wpdb;
 
     $query = 'SELECT ID as artist_id FROM ' . $wpdb->posts . '
-        WHERE post_title LIKE \'' . $search . '\'
+        WHERE post_title LIKE \'' . sanitize_text_field($search) . '\'
         AND post_type = \'wprp_artist\'
         AND post_status = \'publish\'
         ORDER BY post_title ASC
@@ -64,7 +64,7 @@ function wprp_get_track_id_by_artist_id($search, $artist_id)
     $query = 'SELECT p.ID AS track_id FROM ' . $wpdb->posts . ' p
         LEFT JOIN ' . $wpdb->postmeta . ' pm
         ON pm.post_id = p.id
-        WHERE post_title LIKE \'' . $search . '\'
+        WHERE post_title LIKE \'' . sanitize_text_field($search) . '\'
         AND post_type = \'wprp_track\'
         AND post_status = \'publish\'
         AND meta_key = \'wprp_artist\'
