@@ -88,8 +88,41 @@ jQuery(document).ready(function() {
 
     public function wprp_playlist_index()
     {
+//        global $post_type, $post_type_object;
+$post_type = 'wprp_playlist';
+$post_type_object = get_post_type_object( $post_type );
+
+//$screen = WP_Screen::get( $post_type );
+//$screen->post_type = $post_type;
+
+/*
+if ( ! $post_type_object )
+    wp_die( __( 'Invalid post type' ) );
+
+if ( ! current_user_can( $post_type_object->cap->edit_posts ) )
+    wp_die( __( 'Cheatin&#8217; uh?' ) );
+*/
+//$screen = get_current_screen();
+//print_r($screen);
+get_current_screen()->post_type = $post_type;
+
+include __DIR__ . '/../includes/steve.php';
+
+//$wp_list_table = _get_list_table('WP_Posts_List_Table');//, array('screen' => $screen));
+$wp_list_table = new WP_Playlists_List_Table();
+$wp_list_table->prepare_items();
+
+?>
+        <form id="movies-filter" method="get">
+            <!-- For plugins, we also need to ensure that the form posts back to our current page -->
+            <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+            <!-- Now we can render the completed list table -->
+            <?php $wp_list_table->display() ?>
+</form>
+<?php
+return;
         $playlists = array(
-            'numberposts' => 10,
+            'numberposts' => -1,
             'offset' => 0,
 
             'post_type' => 'wprp_playlist',
@@ -98,6 +131,49 @@ jQuery(document).ready(function() {
                 'future'
             ),
         );
+/*
+        $total = get_posts($playlists);
+
+
+$wp_list_table->data = $total;
+*/
+global $wpdb, $wp_query;
+//$wp_query->query = 'SELECT * FROM ' .$wpdb->posts . ' WHERE post_type = \'wprp_playlist\'';
+$wp_query = new WP_Query( $playlists );
+
+$pagenum = $wp_list_table->get_pagenum();
+$doaction = $wp_list_table->current_action();
+
+$wp_list_table->prepare_items();
+
+$wp_list_table->views();
+?>
+<form id="posts-filter" action="" method="get">
+
+<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
+
+<input type="hidden" name="post_status" class="post_status_page" value="<?php echo !empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : 'all'; ?>" />
+<input type="hidden" name="post_type" class="post_type_page" value="<?php echo $post_type; ?>" />
+
+<?php $wp_list_table->display(); ?>
+
+</form>
+<?php
+
+        /*
+        $playlists = array(
+            'numberposts' => -1,
+            'offset' => 0,
+
+            'post_type' => 'wprp_playlist',
+            'post_status' => array(
+                'publish',
+                'future'
+            ),
+        );
+        $total = get_posts($playlists);
+
+        $playlists['numberposts'] = 10;
         $playlists = get_posts($playlists);
 
         echo '<div class="wrap">';
@@ -151,6 +227,7 @@ jQuery(document).ready(function() {
 
         echo '</table>';
         echo '</div>';
+        */
     }
 
     public function wprp_playlist_create() {
@@ -236,9 +313,8 @@ jQuery(document).ready(function() {
         $artists = wprp_post('artist', array());
         $tracks = wprp_post('track', array());
 
-        $start_date = $post_title = '';
-
-        $start_date = wprp_next_monday($this->php_date_format);
+        $post_title = wprp_post('post_title', '');
+        $start_date = wprp_post('start_date', wprp_next_monday($this->php_date_format));
 
         echo '<table class="widefat">';
         echo '<tbody>';
