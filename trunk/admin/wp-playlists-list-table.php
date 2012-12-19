@@ -10,9 +10,9 @@ class WP_Playlists_List_Table extends WP_List_Table {
                 
         //Set parent defaults
         parent::__construct( array(
-            'singular'  => 'playlist',     //singular name of the listed records
-            'plural'    => 'playlists',    //plural name of the listed records
-            'ajax'      => false        //does this table support ajax?
+            'singular'  => 'playlist',
+            'plural'    => 'playlists',
+            'ajax'      => false,
         ) );
         
     }
@@ -56,17 +56,17 @@ class WP_Playlists_List_Table extends WP_List_Table {
     
     function get_columns(){
         $columns = array(
-            'post_title'    => 'Title',
-            'tracks'        => 'Tracks',
-            'post_date'     => 'Date',
+            'post_title'    => __('Title', 'wp-radio-playlist'),
+            'tracks'        => __('Tracks', 'wp-radio-playlist'),
+            'post_date'     => __('State Date', 'wp-radio-playlist'),
         );
         return $columns;
     }
 
     function get_sortable_columns() {
         $sortable_columns = array(
-            'post_title'     => array('post_title', false),//(wprp_request('orderby') == 'post_title' ? true : false)),
-            'post_date'     => array('post_date', false),//(wprp_request('orderby') == 'post_date' ? true : false)),
+            'post_title'     => array('post_title', false),
+            'post_date'     => array('post_date', false),
         );
         return $sortable_columns;
     }
@@ -96,51 +96,28 @@ class WP_Playlists_List_Table extends WP_List_Table {
      * @uses $this->set_pagination_args()
      **************************************************************************/
     function prepare_items() {
-        global $wpdb; //This is used only if making any database queries
+        // http://plugins.svn.wordpress.org/custom-list-table-example/tags/1.2/list-table-example.php
+        global $wpdb;
 
-        /**
-         * First, lets decide how many records per page to show
-         */
-        $per_page = 10;
-        
-        
-        /**
-         * REQUIRED. Now we need to define our column headers. This includes a complete
-         * array of columns to be displayed (slugs & titles), a list of columns
-         * to keep hidden, and a list of columns that are sortable. Each of these
-         * can be defined in another method (as we've done here) before being
-         * used to build the value for our _column_headers property.
-         */
+        $user = get_current_user_id();
+        // get the current admin screen
+        $screen = get_current_screen();
+        // retrieve the "per_page" option
+        $screen_option = $screen->get_option('per_page', 'option');
+        // retrieve the value of the option stored for the current user
+        $per_page = get_user_meta($user, $screen_option, true);
+        if ( empty ( $per_page) || $per_page < 1 ) {
+            // get the default value if none is set
+            $per_page = $screen->get_option( 'per_page', 'default' );
+        }
+
         $columns = $this->get_columns();
         $hidden = array();
         $sortable = $this->get_sortable_columns();
-        
-        
-        /**
-         * REQUIRED. Finally, we build an array to be used by the class for column 
-         * headers. The $this->_column_headers property takes an array which contains
-         * 3 other arrays. One for all columns, one for hidden columns, and one
-         * for sortable columns.
-         */
+
         $this->_column_headers = array($columns, $hidden, $sortable);
-        
-        
-        /**
-         * Optional. You can handle your bulk actions however you see fit. In this
-         * case, we'll handle them within our package just to keep things clean.
-         */
         $this->process_bulk_action();
         
-        
-        /**
-         * Instead of querying a database, we're going to fetch the example data
-         * property we created for use in this plugin. This makes this example 
-         * package slightly different than one you might build on your own. In 
-         * this example, we'll be using array manipulation to sort and paginate 
-         * our data. In a real-world implementation, you will probably want to 
-         * use sort and pagination data to build a custom query instead, as you'll
-         * be able to use your precisely-queried data immediately.
-         */
         $query = 'SELECT ID, post_title, post_date, pm.meta_value AS json FROM ' . $wpdb->posts . ' p
             LEFT JOIN ' . $wpdb->postmeta . ' pm
             ON pm.post_id = p.ID
@@ -154,41 +131,11 @@ class WP_Playlists_List_Table extends WP_List_Table {
 
         $data = $wpdb->get_results($query, ARRAY_A);
         
-        /**
-         * REQUIRED for pagination. Let's figure out what page the user is currently 
-         * looking at. We'll need this later, so you should always include it in 
-         * your own package classes.
-         */
         $current_page = $this->get_pagenum();
-        
-        /**
-         * REQUIRED for pagination. Let's check how many items are in our data array. 
-         * In real-world use, this would be the total number of items in your database, 
-         * without filtering. We'll need this later, so you should always include it 
-         * in your own package classes.
-         */
         $total_items = count($data);
-        
-        
-        /**
-         * The WP_List_Table class does not handle pagination for us, so we need
-         * to ensure that the data is trimmed to only the current page. We can use
-         * array_slice() to 
-         */
         $data = array_slice($data,(($current_page-1)*$per_page),$per_page);
-        
-        
-        
-        /**
-         * REQUIRED. Now we can add our *sorted* data to the items property, where 
-         * it can be used by the rest of the class.
-         */
         $this->items = $data;
-        
-        
-        /**
-         * REQUIRED. We also have to register our pagination options & calculations.
-         */
+
         $this->set_pagination_args( array(
             'total_items' => $total_items,                  //WE have to calculate the total number of items
             'per_page'    => $per_page,                     //WE have to determine how many items to show on a page

@@ -34,11 +34,13 @@ class Wordpress_Radio_Playlist_Admin
         $this->php_date_format = $formats[1];
         $this->jquery_date_format = $formats[0];
 
-//        add_action('admin_init', array($this, 'admin_init'));
+        add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_menu', array($this, 'admin_menu'));
 
         add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
         add_action('admin_head', array($this, 'admin_head'));
+
+        add_filter('set-screen-option', array($this, 'wprp_playlist_index_screen_options_set'), 10, 3);
 
         new Wordpress_Radio_Playlist_Settings();
         new Wordpress_Radio_Playlist_Admin_Ajax();
@@ -75,8 +77,11 @@ jQuery(document).ready(function() {
             }
         }
 
-        add_menu_page(__('Playlists', 'wp-radio-playlist'), __('Playlists', 'wp-radio-playlist'), $this->target_role, 'wprp_playlist', array($this, 'wprp_playlist_index'));
+        $index_page = add_menu_page(__('Playlists', 'wp-radio-playlist'), __('Playlists', 'wp-radio-playlist'), $this->target_role, 'wprp_playlist', array($this, 'wprp_playlist_index'));
         add_submenu_page('wprp_playlist', __('Create Playlist', 'wp-radio-playlist'), __('Create Playlist', 'wp-radio-playlist'), $this->target_role, 'wprp_playlist_create', array($this, 'wprp_playlist_create'));
+
+        $this->menu_page_target = $index_page;
+        add_action('load-' . $index_page, array($this, 'wprp_playlist_index_screen_options'));
     }
 
     /**
@@ -84,10 +89,40 @@ jQuery(document).ready(function() {
     */
     public function admin_init()
     {
+        $action = wprp_request('action', '');
+        if ($action == 'delete') {
+            $playlist = wprp_request('playlist', '');
+            if ($playlist) {
+                $r = wp_delete_post($playlist);
+                if ($r) {
+                    $msg = 'deleteok';
+                } else {
+                    $msg = 'deletefail';
+                }
+            } else {
+                $msg = 'deletenoid';
+            }
+            wp_safe_redirect('?page=wprp_playlist&msg=' . $msg);
+            die();
+        }
     }
 
     public function wprp_playlist_index()
     {
+        // process action
+        $msg = wprp_request('msg', '');
+        if ($msg) {
+            if ($msg == 'deleteok') {
+                echo '<div id="message" class="updated"><p>' . __('Deleted', 'wp-radio-playlist') . '</p></div>';
+            } else if ($msg == 'deletefail') {
+                echo '<div id="message" class="error"><p>' . __('Failed to Delete', 'wp-radio-playlist') . '</p></div>';
+            } else if ($msg == 'deletenoid') {
+                echo '<div id="message" class="error"><p>' . __('No Playlist ID Specified', 'wp-radio-playlist') . '</p></div>';
+            }
+        }
+        $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'msg' ), $_SERVER['REQUEST_URI'] );
+
+        // done
         include __DIR__ . '/wp-playlists-list-table.php';
 
         $wp_list_table = new WP_Playlists_List_Table();
@@ -95,7 +130,7 @@ jQuery(document).ready(function() {
 
         echo '<div class="wrap">';
         screen_icon();
-        echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . '</h2>';
+        echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . ' <a href="?page=wprp_playlist_create" class="add-new-h2">' . __('Add New', 'wp-radio-playlist') . '</a></h2>';
 ?>
     <form id="playlists-filter" method="get">
         <!-- For plugins, we also need to ensure that the form posts back to our current page -->
@@ -107,6 +142,29 @@ jQuery(document).ready(function() {
 <?php
     }
 
+    /**
+    * Screen Options
+    */
+    public function wprp_playlist_index_screen_options() {
+        $screen = get_current_screen();
+        if(!is_object($screen) || $screen->id != $this->menu_page_target)
+            return;
+        $args = array(
+            'label' => __('Playlists per page', 'wp-radio-playlist'),
+            'default' => 10,
+            'option' => 'wprp_playlist_index_screen_options_per_page'
+        );
+        add_screen_option('per_page', $args);
+    }
+    public function wprp_playlist_index_screen_options_set($status, $option, $value) {
+        if ('wprp_playlist_index_screen_options_per_page' == $option) {
+            return $value;
+        }
+    }
+
+    /**
+    * Pages
+    */
     public function wprp_playlist_create() {
         if ($_POST)
         {
