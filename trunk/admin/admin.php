@@ -113,9 +113,9 @@ jQuery(document).ready(function() {
         $msg = wprp_request('msg', '');
         if ($msg) {
             if ($msg == 'deleteok') {
-                echo '<div id="message" class="updated"><p>' . __('Deleted', 'wp-radio-playlist') . '</p></div>';
+                echo '<div id="message" class="updated"><p>' . __('Playlist Deleted', 'wp-radio-playlist') . '</p></div>';
             } else if ($msg == 'deletefail') {
-                echo '<div id="message" class="error"><p>' . __('Failed to Delete', 'wp-radio-playlist') . '</p></div>';
+                echo '<div id="message" class="error"><p>' . __('Failed to Delete Playlist', 'wp-radio-playlist') . '</p></div>';
             } else if ($msg == 'deletenoid') {
                 echo '<div id="message" class="error"><p>' . __('No Playlist ID Specified', 'wp-radio-playlist') . '</p></div>';
             }
