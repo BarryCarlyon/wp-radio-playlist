@@ -43,8 +43,15 @@ jQuery(document).ready(function() {
 ';
     }
 
-    public function wprp_playlist()
+    public function wprp_playlist($args = array())
     {
+        if (wprp_request('playlist')) {
+            $args['playlist'] = wprp_request('playlist');
+        } else {
+            $args['playlist'] = isset($args['playlist']) ? $args['playlist'] : false;
+        }
+        $args['selector'] = isset($args['selector']) ? $args['selector'] : true;
+        
         // get latest playlist
         global $wpdb;
         $query = 'SELECT * FROM ' . $wpdb->posts . '
@@ -52,8 +59,8 @@ jQuery(document).ready(function() {
             AND post_status = \'publish\'
         ';
 
-        if (wprp_request('playlist')) {
-            $query .= 'AND post_date = \'' . wprp_request('playlist') . ' 00:00:00\'';
+        if ($args['playlist']) {
+            $query .= 'AND post_date = \'' . $args['playlist'] . ' 00:00:00\'';
         }
 
         $query .= '
@@ -63,8 +70,11 @@ jQuery(document).ready(function() {
             $playlist = json_decode(get_post_meta($row->ID, 'wprp_json', true));
 
             $html = '';
-            // build selector
-            $html .= $this->selector($row->post_date);
+
+            if ($args['selector']) {
+                // build selector
+                $html .= $this->selector($row->post_date);
+            }
 
             // display latest
             $html .= '<h3>' . $row->post_title . '</h3>';
