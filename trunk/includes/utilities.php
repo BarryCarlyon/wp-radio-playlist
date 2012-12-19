@@ -97,68 +97,91 @@ function wprp_calculate_change($track_id, $artist_id, $this_date, $last_date = f
     global $wpdb;
     $value = $artist_id . ',' . $track_id;
 
-    $query = 'SELECT ID FROM ' . $wpdb->posts . '
-        WHERE post_type = \'wprp_playlist\'
-        AND post_date = \'' . $this_date . '\'';
-    $this_date_id = $wpdb->get_var($query);
-
-    $query = 'SELECT meta_key FROM ' . $wpdb->postmeta . '
-        WHERE meta_value = \'' . $value . '\'
-        AND post_id = ' . $this_date_id;
-    $this_date_ref = $wpdb->get_var($query);
-
-//    if ($this_date_ref) {
-        $current_position = split('_', $this_date_ref);
-        $current_position = $current_position[2];
-//    }
-
+    $this_date_full = $this_date . ' 00:00:00';
+    // prev position
     if ($last_date) {
-        $last_date .= ' 00:00:00';
+        $last_date_full = $last_date . ' 00:00:00';
+        // query
         $query = 'SELECT ID FROM ' . $wpdb->posts . '
             WHERE post_type = \'wprp_playlist\'
-            AND post_date = \'' . $last_date . '\'';
+            AND post_date = \'' . $last_date_full . '\'';
     } else {
-        // obtain last date
-        $last_date = $this_date . ' 00:00:00';
-        $query = 'SELECT ID FROM ' . $wpdb->posts . '
+        // obtain last date before this date
+        $query = 'SELECT ID, post_date FROM ' . $wpdb->posts . '
             WHERE post_type = \'wprp_playlist\'
-            AND post_date < \'' . $last_date . '\'
+            AND post_date < \'' . $this_date_full . '\'
             ORDER BY post_date DESC
             LIMIT 1';
+        $last_date_full = $wpdb->get_var($query, 1);
+        $last_date = strstr($last_date, ' ', TRUE);
     }
-    $last_date_id = $wpdb->get_var($query);
+    // transient check
+    $transient_name = 'wprp_' . $value . '_' . $this_date . '_' . $last_date;
+    $transient_name = str_replace(array(' ', ':', ',', '-'), '_', $transient_name);
 
-    $query = 'SELECT meta_key FROM ' . $wpdb->postmeta . '
-        WHERE meta_value = \'' . $value . '\'
-        AND post_id = ' . $last_date_id;
-    $last_date_ref = $wpdb->get_var($query);
+    if (false === ($transient_result = get_transient($transient_name))) {
+        // continue
+        $last_date_id = $wpdb->get_var($query);
 
-    if ($last_date_ref) {
-        $old_position = split('_', $last_date_ref);
-        $old_position = $old_position[2];
+        $query = 'SELECT meta_key FROM ' . $wpdb->postmeta . '
+            WHERE meta_value = \'' . $value . '\'
+            AND post_id = ' . $last_date_id;
+        $last_date_ref = $wpdb->get_var($query);
 
-        $change = $current_position - $old_position;
-        if ($change > 0) {
-            return '+' . $change;
-        } else if ($change == 0) {
-            return '-';
+        // done
+
+        // current position
+        $query = 'SELECT ID FROM ' . $wpdb->posts . '
+            WHERE post_type = \'wprp_playlist\'
+            AND post_date = \'' . $this_date . '\'';
+        $this_date_id = $wpdb->get_var($query);
+
+        $query = 'SELECT meta_key FROM ' . $wpdb->postmeta . '
+            WHERE meta_value = \'' . $value . '\'
+            AND post_id = ' . $this_date_id;
+        $this_date_ref = $wpdb->get_var($query);
+
+        $current_position = split('_', $this_date_ref);
+        $current_position = $current_position[2];
+        // done
+
+        // math time
+        $result = '';
+
+        if ($last_date_ref) {
+            $old_position = split('_', $last_date_ref);
+            $old_position = $old_position[2];
+
+            $change = $current_position - $old_position;
+            if ($change > 0) {
+                $result = '+' . $change;
+            } else if ($change == 0) {
+                $result = '-';
+            } else {
+                $result = $change;
+            }
         } else {
-            return $change;
+            // reentry?
+            $query = 'SELECT * FROM ' . $wpdb->posts . ' p
+                LEFT JOIN ' . $wpdb->postmeta . ' pm
+                ON pm.post_id = p.ID
+                WHERE p.post_date < \'' . $last_date . '\'
+                AND pm.meta_key LIKE \'wprp_playlist_%\'
+                AND pm.meta_value = \'' . $value . '\'
+                LIMIT 1';
+            $wpdb->query($query);
+            if ($wpdb->num_rows) {
+                $result = 'reentry';
+            } else {
+                $result = 'new';
+            }
         }
+
+        // one week
+        set_transient($transient_name, $result, 604800);
+
+        return $result;
     } else {
-        // reentry?
-        $query = 'SELECT * FROM ' . $wpdb->posts . ' p
-            LEFT JOIN ' . $wpdb->postmeta . ' pm
-            ON pm.post_id = p.ID
-            WHERE p.post_date < \'' . $last_date . '\'
-            AND pm.meta_key LIKE \'wprp_playlist_%\'
-            AND pm.meta_value = \'' . $value . '\'
-            LIMIT 1';
-        $wpdb->query($query);
-        if ($wpdb->num_rows) {
-            return 'reentry';
-        } else {
-            return 'new';
-        }
+        return $transient_result;
     }
 }

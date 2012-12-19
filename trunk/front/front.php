@@ -50,6 +50,7 @@ jQuery(document).ready(function() {
     {
         $args['playlist'] = isset($args['playlist']) ? $args['playlist'] : wprp_request('playlist', false);
         $args['selector'] = isset($args['selector']) ? $args['selector'] : true;
+        $args['change'] = isset($args['change']) ? $args['change'] : true;
 
         // get latest playlist
         global $wpdb;
@@ -81,13 +82,13 @@ jQuery(document).ready(function() {
 
             foreach ($playlist as $pos => $entry)
             {
-                $change = wprp_calculate_change($entry[1], $entry[0], $row->post_date);
-                
                 $html .= '<tr>';
                 $html .= '<th>' . $pos . '</th>';
                 $html .= '<td>' . apply_filters('wprp_artist', wprp_item_title($entry[0])) . ' </td>';
                 $html .= '<td>' . apply_filters('wprp_track', wprp_item_title($entry[1])) . ' </td>';
-                $html .= '<td>' . $change . '</td>';
+                if ($args['change']) {
+                    $html .= '<td>' . wprp_calculate_change($entry[1], $entry[0], $row->post_date) . '</td>';
+                }
                 $html .= '</tr>';
             }
 
