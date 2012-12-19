@@ -92,3 +92,73 @@ function wprp_item_title($post_id) {
     if ($post)
         return $post->post_title;
 }
+
+function wprp_calculate_change($track_id, $artist_id, $this_date, $last_date = false) {
+    global $wpdb;
+    $value = $artist_id . ',' . $track_id;
+
+    $query = 'SELECT ID FROM ' . $wpdb->posts . '
+        WHERE post_type = \'wprp_playlist\'
+        AND post_date = \'' . $this_date . '\'';
+    $this_date_id = $wpdb->get_var($query);
+
+    $query = 'SELECT meta_key FROM ' . $wpdb->postmeta . '
+        WHERE meta_value = \'' . $value . '\'
+        AND post_id = ' . $this_date_id;
+    $this_date_ref = $wpdb->get_var($query);
+
+//    if ($this_date_ref) {
+        $current_position = split('_', $this_date_ref);
+        $current_position = $current_position[2];
+//    }
+
+    if ($last_date) {
+        $last_date .= ' 00:00:00';
+        $query = 'SELECT ID FROM ' . $wpdb->posts . '
+            WHERE post_type = \'wprp_playlist\'
+            AND post_date = \'' . $last_date . '\'';
+    } else {
+        // obtain last date
+        $last_date = $this_date . ' 00:00:00';
+        $query = 'SELECT ID FROM ' . $wpdb->posts . '
+            WHERE post_type = \'wprp_playlist\'
+            AND post_date < \'' . $last_date . '\'
+            ORDER BY post_date DESC
+            LIMIT 1';
+    }
+    $last_date_id = $wpdb->get_var($query);
+
+    $query = 'SELECT meta_key FROM ' . $wpdb->postmeta . '
+        WHERE meta_value = \'' . $value . '\'
+        AND post_id = ' . $last_date_id;
+    $last_date_ref = $wpdb->get_var($query);
+
+    if ($last_date_ref) {
+        $old_position = split('_', $last_date_ref);
+        $old_position = $old_position[2];
+
+        $change = $current_position - $old_position;
+        if ($change > 0) {
+            return '+' . $change;
+        } else if ($change == 0) {
+            return '-';
+        } else {
+            return $change;
+        }
+    } else {
+        // reentry?
+        $query = 'SELECT * FROM ' . $wpdb->posts . ' p
+            LEFT JOIN ' . $wpdb->postmeta . ' pm
+            ON pm.post_id = p.ID
+            WHERE p.post_date < \'' . $last_date . '\'
+            AND pm.meta_key LIKE \'wprp_playlist_%\'
+            AND pm.meta_value = \'' . $value . '\'
+            LIMIT 1';
+        $wpdb->query($query);
+        if ($wpdb->num_rows) {
+            return 'reentry';
+        } else {
+            return 'new';
+        }
+    }
+}

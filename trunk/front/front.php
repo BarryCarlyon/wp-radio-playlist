@@ -58,9 +58,9 @@ jQuery(document).ready(function() {
             AND post_status = \'publish\'
         ';
 
-//        if ($args['playlist'] && $args['selector']) {
+        if ($args['playlist']) {
             $query .= 'AND post_date = \'' . $args['playlist'] . ' 00:00:00\'';
-//        }
+        }
 
         $query .= '
             ORDER BY post_date DESC LIMIT 1';
@@ -81,10 +81,13 @@ jQuery(document).ready(function() {
 
             foreach ($playlist as $pos => $entry)
             {
+                $change = wprp_calculate_change($entry[1], $entry[0], $row->post_date);
+                
                 $html .= '<tr>';
                 $html .= '<th>' . $pos . '</th>';
                 $html .= '<td>' . apply_filters('wprp_artist', wprp_item_title($entry[0])) . ' </td>';
                 $html .= '<td>' . apply_filters('wprp_track', wprp_item_title($entry[1])) . ' </td>';
+                $html .= '<td>' . $change . '</td>';
                 $html .= '</tr>';
             }
 
