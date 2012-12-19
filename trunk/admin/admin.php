@@ -88,7 +88,7 @@ jQuery(document).ready(function() {
 
     public function wprp_playlist_index()
     {
-        include __DIR__ . '/../includes/steve.php';
+        include __DIR__ . '/wp-playlists-list-table.php';
 
         $wp_list_table = new WP_Playlists_List_Table();
         $wp_list_table->prepare_items();
