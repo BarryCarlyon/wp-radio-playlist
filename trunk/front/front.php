@@ -82,12 +82,27 @@ jQuery(document).ready(function() {
 
             foreach ($playlist as $pos => $entry)
             {
-                $html .= '<tr>';
+                $class = '';
+                if ($args['change']) {
+                    $change = wprp_calculate_change($entry[1], $entry[0], $row->post_date);
+                    if ($change > 0) {
+                        $class = 'wprp_up';
+                    } else if ($change < 0) {
+                        $class = 'wprp_down';
+                    } else if ($change == 0) {
+                        $class = 'wprp_nowhere';
+                    } else if ($change == 'new') {
+                        $class = 'wprp_new';
+                    } else {
+                        $class = 'wprp_reentry';
+                    }
+                }
+                $html .= '<tr class="' . $class . '">';
                 $html .= '<th>' . $pos . '</th>';
                 $html .= '<td>' . apply_filters('wprp_artist', wprp_item_title($entry[0])) . ' </td>';
                 $html .= '<td>' . apply_filters('wprp_track', wprp_item_title($entry[1])) . ' </td>';
                 if ($args['change']) {
-                    $html .= '<td>' . wprp_calculate_change($entry[1], $entry[0], $row->post_date) . '</td>';
+                    $html .= '<td>' . $change . '</td>';
                 }
                 $html .= '</tr>';
             }
