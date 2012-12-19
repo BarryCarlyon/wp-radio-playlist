@@ -4,4 +4,3 @@ Deny from all
 <FilesMatch ".(css|js|jpg|gif|jpeg|png)$">
 	Allow from all
 </FilesMatch>
-
