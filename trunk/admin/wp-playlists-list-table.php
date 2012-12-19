@@ -23,7 +23,7 @@ class WP_Playlists_List_Table extends WP_List_Table {
             case 'post_title':
             case 'post_date':
                 return $item[$column_name];
-            case 'items':
+            case 'tracks':
                 return 0;
             default:
                 return print_r($item,true); //Show the whole array for troubleshooting purposes
@@ -33,8 +33,8 @@ class WP_Playlists_List_Table extends WP_List_Table {
     function column_post_title($item){
         //Build row actions
         $actions = array(
-            'edit'      => sprintf('<a href="?page=%s&action=%s&movie=%s">Edit</a>',$_REQUEST['page'],'edit',$item['ID']),
-            'delete'    => sprintf('<a href="?page=%s&action=%s&movie=%s">Delete</a>',$_REQUEST['page'],'delete',$item['ID']),
+            'edit'      => sprintf('<a href="?page=%s&action=%s&playlist=%s">Edit</a>',$_REQUEST['page'],'edit',$item['ID']),
+            'delete'    => sprintf('<a href="?page=%s&action=%s&playlist=%s">Delete</a>',$_REQUEST['page'],'delete',$item['ID']),
         );
         
         //Return the title contents
@@ -48,11 +48,16 @@ class WP_Playlists_List_Table extends WP_List_Table {
         $string = explode(' ', $item['post_date']);
         return $string[0];
     }
+
+    function column_tracks($item) {
+        $json = json_decode($item['json'],true);
+        return count($json);
+    }
     
     function get_columns(){
         $columns = array(
             'post_title'    => 'Title',
-            'items'         => 'Items',
+            'tracks'        => 'Tracks',
             'post_date'     => 'Date',
         );
         return $columns;
@@ -136,7 +141,12 @@ class WP_Playlists_List_Table extends WP_List_Table {
          * use sort and pagination data to build a custom query instead, as you'll
          * be able to use your precisely-queried data immediately.
          */
-        $query = 'SELECT * FROM ' . $wpdb->posts . ' WHERE post_type = \'wprp_playlist\' ORDER BY ';
+        $query = 'SELECT ID, post_title, post_date, pm.meta_value AS json FROM ' . $wpdb->posts . ' p
+            LEFT JOIN ' . $wpdb->postmeta . ' pm
+            ON pm.post_id = p.ID
+            WHERE post_type = \'wprp_playlist\'
+            AND pm.meta_key = \'wprp_json\'
+            ORDER BY ';
         $sort_col = wprp_request('orderby', 'post_date');
         $sort_dir = wprp_request('order', 'DESC');
 
