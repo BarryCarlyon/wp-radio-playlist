@@ -48,11 +48,7 @@ jQuery(document).ready(function() {
 
     public function wprp_playlist($args = array())
     {
-        if (wprp_request('playlist')) {
-            $args['playlist'] = wprp_request('playlist');
-        } else {
-            $args['playlist'] = isset($args['playlist']) ? $args['playlist'] : false;
-        }
+        $args['playlist'] = isset($args['playlist']) ? $args['playlist'] : wprp_request('playlist', false);
         $args['selector'] = isset($args['selector']) ? $args['selector'] : true;
 
         // get latest playlist
