@@ -21,6 +21,7 @@ class WP_Playlists_List_Table extends WP_List_Table {
         switch($column_name){
             case 'ID':
             case 'post_title':
+            case 'post_date':
                 return $item[$column_name];
             case 'items':
                 return 0;
@@ -37,49 +38,41 @@ class WP_Playlists_List_Table extends WP_List_Table {
         );
         
         //Return the title contents
-//        return $item['post_title'];
         return sprintf('%1$s%2$s',
             $item['post_title'],
             $this->row_actions($actions)
         );
+    }
 
-        return sprintf('%1$s <span style="color:silver">(id:%2$s)</span>%3$s',
-            /*$1%s*/ $item['post_title'],
-            /*$2%s*/ $item['ID'],
-            /*$3%s*/ $this->row_actions($actions)
-        );
+    function column_post_date($item) {
+        $string = explode(' ', $item['post_date']);
+        return $string[0];
     }
     
     function get_columns(){
         $columns = array(
-            'ID'            => 'ID',
             'post_title'    => 'Title',
             'items'         => 'Items',
+            'post_date'     => 'Date',
         );
         return $columns;
     }
 
     function get_sortable_columns() {
         $sortable_columns = array(
-            'post_title'     => array('post_title',false),     //true means it's already sorted
+            'post_title'     => array('post_title', false),//(wprp_request('orderby') == 'post_title' ? true : false)),
+            'post_date'     => array('post_date', false),//(wprp_request('orderby') == 'post_date' ? true : false)),
         );
         return $sortable_columns;
     }
     
     function get_bulk_actions() {
         $actions = array(
-//            'delete'    => 'Delete'
         );
         return $actions;
     }
     
     function process_bulk_action() {
-        
-        //Detect when a bulk action is being triggered...
-        if( 'delete'===$this->current_action() ) {
-            wp_die('Items deleted (or they would be if we had items to delete)!');
-        }
-        
     }
     
     /** ************************************************************************
@@ -143,19 +136,14 @@ class WP_Playlists_List_Table extends WP_List_Table {
          * use sort and pagination data to build a custom query instead, as you'll
          * be able to use your precisely-queried data immediately.
          */
-        $data = $wpdb->get_results('SELECT * FROM ' . $wpdb->posts . ' WHERE post_type = \'wprp_playlist\' ORDER BY post_date DESC', ARRAY_A);
+        $query = 'SELECT * FROM ' . $wpdb->posts . ' WHERE post_type = \'wprp_playlist\' ORDER BY ';
+        $sort_col = wprp_request('orderby', 'post_date');
+        $sort_dir = wprp_request('order', 'DESC');
 
-        /***********************************************************************
-         * ---------------------------------------------------------------------
-         * vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-         * 
-         * In a real-world situation, this is where you would place your query.
-         * 
-         * ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-         * ---------------------------------------------------------------------
-         **********************************************************************/
+        $query .= $sort_col . ' ' . $sort_dir;
+
+        $data = $wpdb->get_results($query, ARRAY_A);
         
-                
         /**
          * REQUIRED for pagination. Let's figure out what page the user is currently 
          * looking at. We'll need this later, so you should always include it in 
