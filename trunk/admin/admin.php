@@ -88,146 +88,23 @@ jQuery(document).ready(function() {
 
     public function wprp_playlist_index()
     {
-//        global $post_type, $post_type_object;
-$post_type = 'wprp_playlist';
-$post_type_object = get_post_type_object( $post_type );
+        include __DIR__ . '/../includes/steve.php';
 
-//$screen = WP_Screen::get( $post_type );
-//$screen->post_type = $post_type;
-
-/*
-if ( ! $post_type_object )
-    wp_die( __( 'Invalid post type' ) );
-
-if ( ! current_user_can( $post_type_object->cap->edit_posts ) )
-    wp_die( __( 'Cheatin&#8217; uh?' ) );
-*/
-//$screen = get_current_screen();
-//print_r($screen);
-get_current_screen()->post_type = $post_type;
-
-include __DIR__ . '/../includes/steve.php';
-
-//$wp_list_table = _get_list_table('WP_Posts_List_Table');//, array('screen' => $screen));
-$wp_list_table = new WP_Playlists_List_Table();
-$wp_list_table->prepare_items();
-
-?>
-        <form id="movies-filter" method="get">
-            <!-- For plugins, we also need to ensure that the form posts back to our current page -->
-            <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-            <!-- Now we can render the completed list table -->
-            <?php $wp_list_table->display() ?>
-</form>
-<?php
-return;
-        $playlists = array(
-            'numberposts' => -1,
-            'offset' => 0,
-
-            'post_type' => 'wprp_playlist',
-            'post_status' => array(
-                'publish',
-                'future'
-            ),
-        );
-/*
-        $total = get_posts($playlists);
-
-
-$wp_list_table->data = $total;
-*/
-global $wpdb, $wp_query;
-//$wp_query->query = 'SELECT * FROM ' .$wpdb->posts . ' WHERE post_type = \'wprp_playlist\'';
-$wp_query = new WP_Query( $playlists );
-
-$pagenum = $wp_list_table->get_pagenum();
-$doaction = $wp_list_table->current_action();
-
-$wp_list_table->prepare_items();
-
-$wp_list_table->views();
-?>
-<form id="posts-filter" action="" method="get">
-
-<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
-
-<input type="hidden" name="post_status" class="post_status_page" value="<?php echo !empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : 'all'; ?>" />
-<input type="hidden" name="post_type" class="post_type_page" value="<?php echo $post_type; ?>" />
-
-<?php $wp_list_table->display(); ?>
-
-</form>
-<?php
-
-        /*
-        $playlists = array(
-            'numberposts' => -1,
-            'offset' => 0,
-
-            'post_type' => 'wprp_playlist',
-            'post_status' => array(
-                'publish',
-                'future'
-            ),
-        );
-        $total = get_posts($playlists);
-
-        $playlists['numberposts'] = 10;
-        $playlists = get_posts($playlists);
+        $wp_list_table = new WP_Playlists_List_Table();
+        $wp_list_table->prepare_items();
 
         echo '<div class="wrap">';
-
-        echo '<a href="?page=wprp_playlist_create" class="button-secondary alignright" style="margin-top: 10px;">' . __('Create', 'wp-radio-playlist') . '</a>';
-
         screen_icon();
         echo '<h2>' . __('WP Radio Playlist', 'wp-radio-playlist') . '</h2>';
-
-        echo '<table class="widefat">';
-
-        echo '<thead>';
-        echo '
-<tr>
-    <th>' . __('ID', 'wp-radio-playlist') . '</th>
-    <th>' . __('Tracks', 'wp-radio-playlist') . '</th>
-    <th>' . __('Date', 'wp-radio-playlist') . '</th>
-</tr>
-';
-        echo '</thead>';
-        echo '<tfoot>';
-        echo '
-<tr>
-    <th>' . __('ID', 'wp-radio-playlist') . '</th>
-    <th>' . __('Tracks', 'wp-radio-playlist') . '</th>
-    <th>' . __('Date', 'wp-radio-playlist') . '</th>
-</tr>
-';
-        echo '</tfoot>';
-
-        echo '<tbody>';
-
-        if (!count($playlists)) {
-            echo '<tr><td colspan="10">' . __('No Playlists to Show', 'wp-radio-playlist') . '</td></tr>';
-        } else {
-            foreach ($playlists as $playlist)
-            {
-                echo '<tr>';
-                echo '<td>' . $playlist->ID . '</td>';
-
-                echo '<td>' . get_post_meta($playlist->ID, 'wprp_playlist_tracks', true);
-
-                $date = split(' ', $playlist->post_date);
-                echo '<td>' . $date[0] . '</td>';
-
-                echo '</tr>';
-            }
-        }
-
-        echo '</tbody>';
-
-        echo '</table>';
-        echo '</div>';
-        */
+?>
+    <form id="playlists-filter" method="get">
+        <!-- For plugins, we also need to ensure that the form posts back to our current page -->
+        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+        <!-- Now we can render the completed list table -->
+        <?php $wp_list_table->display() ?>
+    </form>
+</div>
+<?php
     }
 
     public function wprp_playlist_create() {

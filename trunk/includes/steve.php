@@ -30,7 +30,6 @@ class WP_Playlists_List_Table extends WP_List_Table {
     }
     
     function column_post_title($item){
-        
         //Build row actions
         $actions = array(
             'edit'      => sprintf('<a href="?page=%s&action=%s&movie=%s">Edit</a>',$_REQUEST['page'],'edit',$item['ID']),
@@ -38,7 +37,12 @@ class WP_Playlists_List_Table extends WP_List_Table {
         );
         
         //Return the title contents
-        return $item['post_title'];
+//        return $item['post_title'];
+        return sprintf('%1$s%2$s',
+            $item['post_title'],
+            $this->row_actions($actions)
+        );
+
         return sprintf('%1$s <span style="color:silver">(id:%2$s)</span>%3$s',
             /*$1%s*/ $item['post_title'],
             /*$2%s*/ $item['ID'],
@@ -99,7 +103,7 @@ class WP_Playlists_List_Table extends WP_List_Table {
         /**
          * First, lets decide how many records per page to show
          */
-        $per_page = 5;
+        $per_page = 10;
         
         
         /**
@@ -141,23 +145,6 @@ class WP_Playlists_List_Table extends WP_List_Table {
          */
         $data = $wpdb->get_results('SELECT * FROM ' . $wpdb->posts . ' WHERE post_type = \'wprp_playlist\' ORDER BY post_date DESC', ARRAY_A);
 
-        /**
-         * This checks for sorting input and sorts the data in our array accordingly.
-         * 
-         * In a real-world situation involving a database, you would probably want 
-         * to handle sorting by passing the 'orderby' and 'order' values directly 
-         * to a custom query. The returned data will be pre-sorted, and this array
-         * sorting technique would be unnecessary.
-         */
-/*        function usort_reorder($a,$b){
-            $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'post_title'; //If no sort, default to title
-            $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc'; //If no order, default to asc
-            $result = strcmp($a[$orderby], $b[$orderby]); //Determine sort order
-            return ($order==='asc') ? $result : -$result; //Send final sort direction to usort
-        }
-        usort($data, 'usort_reorder');
-*/
-        
         /***********************************************************************
          * ---------------------------------------------------------------------
          * vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -211,58 +198,4 @@ class WP_Playlists_List_Table extends WP_List_Table {
         ) );
     }
     
-}
-
-
-return;
-
-
-/** ************************ REGISTER THE TEST PAGE ****************************
- *******************************************************************************
- * Now we just need to define an admin page. For this example, we'll add a top-level
- * menu item to the bottom of the admin menus.
- */
-function tt_add_menu_items(){
-    add_menu_page('Example Plugin List Table', 'List Table Example', 'activate_plugins', 'tt_list_test', 'tt_render_list_page');
-} add_action('admin_menu', 'tt_add_menu_items');
-
-
-/***************************** RENDER TEST PAGE ********************************
- *******************************************************************************
- * This function renders the admin page and the example list table. Although it's
- * possible to call prepare_items() and display() from the constructor, there
- * are often times where you may need to include logic here between those steps,
- * so we've instead called those methods explicitly. It keeps things flexible, and
- * it's the way the list tables are used in the WordPress core.
- */
-function tt_render_list_page(){
-    
-    //Create an instance of our package class...
-    $testListTable = new TT_Example_List_Table();
-    //Fetch, prepare, sort, and filter our data...
-    $testListTable->prepare_items();
-    
-    ?>
-    <div class="wrap">
-        
-        <div id="icon-users" class="icon32"><br/></div>
-        <h2>List Table Test</h2>
-        
-        <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-            <p>This page demonstrates the use of the <tt><a href="http://codex.wordpress.org/Class_Reference/WP_List_Table" target="_blank" style="text-decoration:none;">WP_List_Table</a></tt> class in plugins.</p> 
-            <p>For a detailed explanation of using the <tt><a href="http://codex.wordpress.org/Class_Reference/WP_List_Table" target="_blank" style="text-decoration:none;">WP_List_Table</a></tt>
-            class in your own plugins, you can view this file <a href="/wp-admin/plugin-editor.php?plugin=table-test/table-test.php" style="text-decoration:none;">in the Plugin Editor</a> or simply open <tt style="color:gray;"><?php echo __FILE__ ?></tt> in the PHP editor of your choice.</p>
-            <p>Additional class details are available on the <a href="http://codex.wordpress.org/Class_Reference/WP_List_Table" target="_blank" style="text-decoration:none;">WordPress Codex</a>.</p>
-        </div>
-        
-        <!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
-        <form id="movies-filter" method="get">
-            <!-- For plugins, we also need to ensure that the form posts back to our current page -->
-            <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-            <!-- Now we can render the completed list table -->
-            <?php $testListTable->display() ?>
-        </form>
-        
-    </div>
-    <?php
 }
