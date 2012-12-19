@@ -51,7 +51,7 @@ jQuery(document).ready(function() {
             $args['playlist'] = isset($args['playlist']) ? $args['playlist'] : false;
         }
         $args['selector'] = isset($args['selector']) ? $args['selector'] : true;
-        
+
         // get latest playlist
         global $wpdb;
         $query = 'SELECT * FROM ' . $wpdb->posts . '
@@ -59,7 +59,7 @@ jQuery(document).ready(function() {
             AND post_status = \'publish\'
         ';
 
-        if ($args['playlist']) {
+        if ($args['playlist'] && $args['selector']) {
             $query .= 'AND post_date = \'' . $args['playlist'] . ' 00:00:00\'';
         }
 
