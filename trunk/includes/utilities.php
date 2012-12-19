@@ -49,7 +49,6 @@ function wprp_get_artist_id($search)
         AND post_status = \'publish\'
         ORDER BY post_title ASC
         LIMIT 1';// there SHOULD only ever be one...
-        echo $query . '<br />';
     $results = $wpdb->get_results($query);
     if ($wpdb->num_rows == 1)
     {
@@ -72,7 +71,6 @@ function wprp_get_track_id_by_artist_id($search, $artist_id)
         AND meta_value = \'' . $artist_id . '\'
         ORDER BY post_title ASC
         LIMIT 1';// there SHOULD only ever be one...
-    echo $query . '<br />';
     $results = $wpdb->get_results($query);
     if ($wpdb->num_rows == 1)
     {
