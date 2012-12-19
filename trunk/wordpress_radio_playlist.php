@@ -1,12 +1,12 @@
 <?php
 
-/*
+/**
  Plugin Name: WP Radio Playlist
  Plugin URI: http://barrycarlyon.co.uk/
  Description: Beep
  Author: Barry Carlyon
  Author URI: http://www.barrycarlyon.co.uk
- Version: 0.0.1
+ Version: 1.0.0
  */
 
 /**
@@ -31,7 +31,7 @@ class Wordpress_Radio_Playlist
     */
     public function __construct()
     {
-        $this->setup();
+        $this->_setup();
         include 'includes/utilities.php';
 
         if (is_admin()) {
@@ -47,15 +47,21 @@ class Wordpress_Radio_Playlist
 
     /**
     * Start setting up hooks
+    *
+    * @return nothing
     */
-    private function setup()
+    private function _setup()
     {
         /**
         Begin hooking
         */
-        add_action('init', array($this, 'post_types'));
+        add_action('init', array($this, 'postTypes'));
 
-        load_plugin_textdomain('wp-radio-playlist', false, basename(dirname(__FILE__)), '/languages');
+        load_plugin_textdomain(
+            'wp-radio-playlist',
+            false,
+            basename(dirname(__FILE__)) . '/languages'
+        );
 
         /**
         Optional commons
@@ -66,8 +72,10 @@ class Wordpress_Radio_Playlist
 
     /**
     * Setup Custom Post Types things
+    * 
+    * @return nothing
     */
-    public function post_types()
+    public function postTypes()
     {
         include 'includes/post_types.php';
         return;
