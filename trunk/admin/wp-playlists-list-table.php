@@ -45,8 +45,7 @@ class WP_Playlists_List_Table extends WP_List_Table {
     }
 
     function column_post_date($item) {
-        $string = explode(' ', $item['post_date']);
-        return $string[0];
+        return strstr($item['post_date'], ' ', TRUE);
     }
 
     function column_tracks($item) {
