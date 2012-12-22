@@ -18,8 +18,10 @@ class Wordpress_Radio_Playlist_Admin_Ajax
         add_action('wp_ajax_wprp_artist', array($this, 'wp_ajax_wprp_artist'));
         add_action('wp_ajax_wprp_track', array($this, 'wp_ajax_wprp_track'));
 
-        add_action('wp_ajax_wprp_spotify_lookup_tracks', array($this, 'wp_ajax_wprp_spotify_lookup_tracks'));
-        add_action('wp_ajax_wprp_spotify_get_track', array($this, 'wp_ajax_wprp_spotify_get_track'));
+        if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
+            add_action('wp_ajax_wprp_spotify_lookup_tracks', array($this, 'wp_ajax_wprp_spotify_lookup_tracks'));
+            add_action('wp_ajax_wprp_spotify_get_track', array($this, 'wp_ajax_wprp_spotify_get_track'));
+        }
     }
     function admin_scripts()
     {

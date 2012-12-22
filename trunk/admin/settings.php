@@ -24,6 +24,12 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings'
         );
         add_settings_section(
+            'wp-radio-playlist-settings-extras',
+            __('Extras Settings', 'wp-radio-playlist'),
+            array($this, 'settings_header_extras'),
+            'wp-radio-playlist-settings'
+        );
+        add_settings_section(
             'wp-radio-playlist-settings-debug',
             __('Debug Settings', 'wp-radio-playlist'),
             array($this, 'settings_header_debug'),
@@ -55,6 +61,16 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings-general'
         );
 
+        // extras
+        add_settings_field(
+            'wp-radio-playlist-extras-spotifyplay',
+            __('Enabled Spotify Play', 'wp-radio-playlist'),
+            array($this, 'spotifyplay'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-extras'
+        );
+
+        // debug
         add_settings_field(
             'wp-radio-playlist-raw-posts-tracks',
             __('Show Raw Tracks Post Editor', 'wp-radio-playlist'),
@@ -83,6 +99,8 @@ class Wordpress_Radio_Playlist_Settings
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-dateformat');
 
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-extras-spotifyplay');
+
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-playlists');
@@ -92,6 +110,10 @@ class Wordpress_Radio_Playlist_Settings
     * General Settings page
     */
     public function settings_header_general()
+    {
+        echo '';//__('General Settings', 'wp-radio-playlist');
+    }
+    public function settings_header_extras()
     {
         echo '';//__('General Settings', 'wp-radio-playlist');
     }
@@ -146,6 +168,13 @@ class Wordpress_Radio_Playlist_Settings
         $this->option('wp-radio-playlist-dateformat', $options, 'mm/dd/yy-m/d/Y');
     }
 
+    // extras
+    public function spotifyplay()
+    {
+        $this->bool('wp-radio-playlist-extras-spotifyplay', 0);
+    }
+
+    // debug
     public function raw_posts_tracks()
     {
         $this->bool('wp-radio-playlist-raw-posts-tracks', 0);

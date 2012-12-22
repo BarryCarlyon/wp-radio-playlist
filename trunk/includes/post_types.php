@@ -105,7 +105,9 @@ register_post_type(
 
 // meta box callbacks
 function wprp_track_meta_box_cb() {
-    add_meta_box('spotify_play_button', __('Spotify Play', 'wp-radio-playlist'), 'wprp_spotify_play_button_form', 'wprp_track');
+    if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
+        add_meta_box('spotify_play_button', __('Spotify Play', 'wp-radio-playlist'), 'wprp_spotify_play_button_form', 'wprp_track');
+    }
 }
 function wprp_spotify_play_button_form($post) {
     echo '<div id="wprp_selected_track">';
