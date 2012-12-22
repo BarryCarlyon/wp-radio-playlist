@@ -106,7 +106,7 @@ jQuery(document).ready(function() {
                 echo '<tr><td>';
                 echo '<iframe src="https://embed.spotify.com/?uri=';
                 echo $track->href;
-                echo '" width="300" height="100" frameborder="0" allowtransparency="true"></iframe>';
+                echo '" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>';
                 echo '</td><td>';
                 echo '<input type="button" class="wprp_use_track" class="button-secondary" value="' . __('Use Track', 'wp-radio-playlist') . '" data-uri="';
                 echo $track->href;
@@ -124,7 +124,7 @@ jQuery(document).ready(function() {
 
         echo '<iframe src="https://embed.spotify.com/?uri=';
         echo wprp_get('uri');
-        echo '" width="300" height="100" frameborder="0" allowtransparency="true"></iframe>';
+        echo '" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>';
 
         die();
     }
