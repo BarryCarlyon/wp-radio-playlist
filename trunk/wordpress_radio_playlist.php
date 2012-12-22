@@ -21,6 +21,9 @@
 * @link     noneyet
 */
 
+define('WPRP_DIR', plugin_dir_path(__FILE__));
+define('WPRP_INCLUDES_DIR', plugin_dir_path(__FILE__) . 'includes/');
+
 /**
 * Main caller/constants includer/commons
 */
@@ -32,13 +35,13 @@ class Wordpress_Radio_Playlist
     public function __construct()
     {
         $this->_setup();
-        include 'includes/utilities.php';
+        include WPRP_INCLUDES_DIR . 'utilities.php';
 
         if (is_admin()) {
-            include 'admin/admin.php';
+            include WPRP_DIR . '/admin/admin.php';
             new Wordpress_Radio_Playlist_Admin();
         } else {
-            include 'front/front.php';
+            include WPRP_DIR . '/front/front.php';
             new Wordpress_Radio_Playlist_Front();
         }
 
@@ -77,7 +80,7 @@ class Wordpress_Radio_Playlist
     */
     public function postTypes()
     {
-        include 'includes/post_types.php';
+        include WPRP_INCLUDES_DIR . 'post_types.php';
         return;
     }
 }

@@ -30,6 +30,7 @@ register_post_type(
         'publicly_queryable'    => false,
         'exclude_from_search'   => true,
         'can_export'            => true,
+        'register_meta_box_cb'  => 'wprp_track_meta_box_cb',
 //                'menu_icon'             => plugin_dir_url(__FILE__) . 'img/zombaio_icon.png',
     )
 );
@@ -101,3 +102,22 @@ register_post_type(
 //                'menu_icon'             => plugin_dir_url(__FILE__) . 'img/zombaio_icon.png',
     )
 );
+
+// meta box callbacks
+function wprp_track_meta_box_cb() {
+    add_meta_box('spotify_play_button', __('Spotify Play', 'wp-radio-playlist'), 'wprp_spotify_play_button_form', 'wprp_track');
+}
+function wprp_spotify_play_button_form($post) {
+    echo '<div id="wprp_selected_track">';
+
+    $uri = get_post_meta($post->ID, 'wprp_spotify_uri', true);
+    if ($uri) {
+        echo '<iframe src="https://embed.spotify.com/?uri=';
+        echo $uri;
+        echo '" width="300" height="100" frameborder="0" allowtransparency="true"></iframe>';
+    }
+
+    echo '</div>';
+    echo '<div id="wprp_found_tracks"></div>';
+    echo '<input type="button" id="wprp_lookup_tracks" class="button-secondary" value="' . __('Lookup Tracks', 'wp-radio-playlist') . '" />';
+}
