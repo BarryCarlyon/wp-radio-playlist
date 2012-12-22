@@ -23,6 +23,7 @@
 
 define('WPRP_DIR', plugin_dir_path(__FILE__));
 define('WPRP_INCLUDES_DIR', plugin_dir_path(__FILE__) . 'includes/');
+define('WPRP_EXTRAS_DIR', plugin_dir_path(__FILE__) . 'extras/');
 
 /**
 * Main caller/constants includer/commons
@@ -35,7 +36,10 @@ class Wordpress_Radio_Playlist
     public function __construct()
     {
         $this->_setup();
-        include WPRP_INCLUDES_DIR . 'utilities.php';
+        include_once WPRP_INCLUDES_DIR . 'utilities.php';
+        include_once WPRP_INCLUDES_DIR . 'settings.php';
+
+        $this->_extras();
 
         if (is_admin()) {
             include WPRP_DIR . '/admin/admin.php';
@@ -71,6 +75,31 @@ class Wordpress_Radio_Playlist
         */
 
         return;
+    }
+
+    /**
+    * Check for load and init extras
+    *
+    * @return nothing
+    */
+    private function _extras()
+    {
+        $dir = new FilesystemIterator(WPRP_EXTRAS_DIR);
+        foreach ($dir as $path => $fileinfo) {
+            if ($fileinfo->isFile()) {
+                if ($fileinfo->getExtension() == 'php') {
+                    $name = substr($fileinfo->getFilename(), 0, -4);
+                    include $path;
+                    $bool = 'wp-radio-playlist-extras-' . strtolower($name);
+                    $class = 'Wordpress_Radio_Playlist_Extras_' . $name;
+                    if (get_option($bool, 0)) {
+                        new $class();
+                    }
+                    $class .= '_Settings';
+                    new $class();
+                }
+            }
+        }
     }
 
     /**

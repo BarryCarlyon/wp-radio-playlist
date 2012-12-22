@@ -22,6 +22,10 @@ class Wordpress_Radio_Playlist_Front
         add_shortcode('wprp_selector', array($this, 'selector'));
 
         add_filter('wp_nav_menu_objects', array($this, 'menu'), 10, 2);
+
+//        if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
+  //          add_shortcode('wprp_spotify_playlist', array($this, 'wprp_spotify_playlist'));
+    //    }
     }
 
     public function wp_enqueue_scripts()
@@ -193,5 +197,11 @@ jQuery(document).ready(function() {
         $items .= '</ul></li>';
 //        print_r($items);
         return $items;
+    }
+
+    // Spotify
+    public function wprp_spotify_playlist()
+    {
+//<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:5Z7ygHQo02SUrFmcgpwsKW,1x6ACsKV4UdWS2FMuPFUiT,4bi73jCM02fMpkI11Lqmfe" frameborder="0" allowtransparency="true"></iframe>
     }
 }

@@ -62,13 +62,7 @@ class Wordpress_Radio_Playlist_Settings
         );
 
         // extras
-        add_settings_field(
-            'wp-radio-playlist-extras-spotifyplay',
-            __('Enabled Spotify Play', 'wp-radio-playlist'),
-            array($this, 'spotifyplay'),
-            'wp-radio-playlist-settings',
-            'wp-radio-playlist-settings-extras'
-        );
+
 
         // debug
         add_settings_field(
@@ -98,8 +92,6 @@ class Wordpress_Radio_Playlist_Settings
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-tracks-in-list');
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-dateformat');
-
-        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-extras-spotifyplay');
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
@@ -169,10 +161,6 @@ class Wordpress_Radio_Playlist_Settings
     }
 
     // extras
-    public function spotifyplay()
-    {
-        $this->bool('wp-radio-playlist-extras-spotifyplay', 0);
-    }
 
     // debug
     public function raw_posts_tracks()
@@ -191,15 +179,15 @@ class Wordpress_Radio_Playlist_Settings
     /**
     * Input types
     */
-    private function bool($option, $default)
+    protected function bool($option, $default)
     {
         echo '<input name="' . $option . '" id="' . $option . '" type="checkbox" value="1" class="code" ' . checked( 1, get_option($option, $default), false ) . ' />';
     }
-    private function text($option, $default)
+    protected function text($option, $default)
     {
         echo '<input name="' . $option . '" id="' . $option . '" type="text" value="' . get_option($option, $default) . '" class="code" />';
     }
-    private function number($option, $default, $args = array())
+    protected function number($option, $default, $args = array())
     {
         $args = array(
             'step'      => isset($args['step']) ? $args['step'] : 1,
@@ -210,7 +198,7 @@ class Wordpress_Radio_Playlist_Settings
 
         echo '<input name="' . $option . '" id="' . $option . '" type="number" value="' . get_option($option, $default) . '" min="' . $args['min'] . '" max="' . $args['max'] . '" step="' . $args['step'] . '" maxlength="' . $args['maxlength'] . '" />';
     }
-    private function option($option, $options, $default)
+    protected function option($option, $options, $default)
     {
         echo '<select name="' . $option . '" id="' . $option . '">';
         foreach ($options as $index => $item) {

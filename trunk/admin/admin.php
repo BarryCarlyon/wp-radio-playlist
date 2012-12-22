@@ -21,7 +21,6 @@ class Wordpress_Radio_Playlist_Admin
     function __construct()
     {
         include_once 'ajax.php';
-        include_once 'settings.php';
         $this->setup();
     }
 
