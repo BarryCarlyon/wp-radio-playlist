@@ -34,7 +34,9 @@ class Wordpress_Radio_Playlist_Admin_Ajax
 jQuery(document).ready(function() {
     jQuery('.wprp_artist').suggest(ajaxurl + '?action=wprp_artist');
     jQuery('.wprp_track').suggest(ajaxurl + '?action=wprp_track');
-
+<?php
+    if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
+        ?>
     jQuery('#wprp_lookup_tracks').click(function() {
         jQuery('#wprp_found_tracks').html('<?php _e('Loading', 'wp-radio-playlist') ?>');
         jQuery.get(ajaxurl + '?action=wprp_spotify_lookup_tracks&postid=' + jQuery('#post_ID').val(), function(data) {
@@ -48,11 +50,12 @@ jQuery(document).ready(function() {
             jQuery('#wprp_selected_track').html(data);
         });
     });
+<?php
+    }
+?>
 });
 </script>
 <?php
-// &title=' + jQuery('#title').val()
-// 
     }
 
     function wp_ajax_wprp_artist()
