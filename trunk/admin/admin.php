@@ -322,17 +322,21 @@ jQuery(document).ready(function() {
 
         echo '<hr />';
 
+        $extra_headers = apply_filters('wprp_playlist_extra_form_headers', '');
+
         echo '<table class="widefat">';
         echo '
 <thead>
     <tr><th>#</th>
     <th>' . __('Artist', 'wp-radio-playlist') . '</th>
     <th>' . __('Track', 'wp-radio-playlist') . '</th>
+    ' . $extra_headers . '
 </thead>
 <tfoot>
     <tr><th>#</th>
     <th>' . __('Artist', 'wp-radio-playlist') . '</th>
     <th>' . __('Track', 'wp-radio-playlist') . '</th>
+    ' . $extra_headers . '
 </tfoot>
 ';
         echo '<tbody>';
@@ -346,6 +350,7 @@ jQuery(document).ready(function() {
             echo '<td>' . $x . '</td>';
             echo '<td><input type="text" class="wprp_artist" name="artist[' . $x . ']" style="width: 100%;" value="' . $artist . '" /></td>';
             echo '<td><input type="text" class="wprp_track" name="track[' . $x . ']" style="width: 100%;" value="' . $track . '" /></td>';
+            echo apply_filters('wprp_playlist_extra_form_columns', '');
             echo '</tr>';
         }
         echo '</tbody>';
