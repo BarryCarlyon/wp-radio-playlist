@@ -19,7 +19,6 @@ class Wordpress_Radio_Playlist_Extras_Spotifyplay
                     add_action('admin_head', array($this, 'admin_head_default'));
                     add_action('wprp_track_meta_box_cb', array($this, 'wprp_track_meta_box_cb'));
                 }
-                add_action('admin_head', array($this, 'admin_head_page'));
                 add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
 
                 add_action('wp_ajax_wprp_spotify_lookup_tracks', array($this, 'wp_ajax_wprp_spotify_lookup_tracks'));
@@ -92,6 +91,15 @@ jQuery(document).ready(function() {
         $spotify = new Spotify();
         $tracks = $spotify->search_track($track_name);
 
+        if (!$tracks) {
+            echo __('An Error Occured', 'wp-radio-playlist');
+            die();
+        }
+        if (!count($tracks->tracks)) {
+            echo __('No Tracks Returned', 'wp-radio-playlist');
+            die();
+        }
+
         echo '<table>';
         foreach ($tracks->tracks as $track) {
             if ($track->artists[0]->name == $artist_name) {
@@ -131,28 +139,10 @@ jQuery(document).ready(function() {
     */
     function admin_enqueue_scripts() {
         if (wprp_request('page') == 'wprp_playlist' || wprp_request('page') == 'wprp_playlist_create') {
-            wp_enqueue_script('jquery-ui-dialog');
             add_thickbox();
         }
     }
-    function admin_head_page() {
-        if (wprp_request('page') == 'wprp_playlist' || wprp_request('page') == 'wprp_playlist_create') {
-            ?>
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    jQuery('<div id="wprp_dialog">mny dialog</div>').appendTo('body');
-    jQuery('.wprp_lookup_tracks').click(function() {
-        jQuery('#wprp_dialog').dialog({
-            'dialogClass': 'media-modal wp-core-ui wp-dialog',
-            'modal': true,
-            'closeOnEscape': true,
-        });
-    });
-});
-</script>
-<?php
-        }
-    }
+
     function wprp_playlist_extra_form_headers($input, $post) {
         $input .= '<th>' . __('Add Spotify', 'wp-radio-playlist') . '</th>';
         return $input;
@@ -166,8 +156,9 @@ jQuery(document).ready(function() {
         if ($uri) {
             $input .= wprp_spotify_player($uri);
         }
-        $input .= '<a href="/" class="button-secondary thickbox">' . __('Load Tracks', 'wp-radio-playlist') . '</a>';
-//        $input .= '<input type="button" class="button-secondary wprp_lookup_tracks" value="' . __('Load Tracks', 'wp-radio-playlist') . '" />';
+        $input .= '<a href="'
+            . site_url('/wp-admin/admin-ajax.php?action=wprp_spotify_lookup_tracks&postid=' . $artist_track[1])
+             . '" class="button-secondary thickbox">' . __('Load Tracks', 'wp-radio-playlist') . '</a>';
         $input .= '</td>';
         return $input;
     }
