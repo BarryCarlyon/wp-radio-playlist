@@ -15,15 +15,23 @@ class Wordpress_Radio_Playlist_Extras_Spotifyplay
     {
         if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
             if (is_admin()) {
-                add_action('admin_head', array($this, 'admin_head'));
-                add_action('wprp_track_meta_box_cb', array($this, 'wprp_track_meta_box_cb'));
+                if (get_option('wp-radio-playlist-raw-posts-tracks', 0)) {
+                    add_action('admin_head', array($this, 'admin_head'));
+                    add_action('wprp_track_meta_box_cb', array($this, 'wprp_track_meta_box_cb'));
+                }
 
                 add_action('wp_ajax_wprp_spotify_lookup_tracks', array($this, 'wp_ajax_wprp_spotify_lookup_tracks'));
                 add_action('wp_ajax_wprp_spotify_get_track', array($this, 'wp_ajax_wprp_spotify_get_track'));
+
+                add_filter('wprp_playlist_extra_form_headers', array($this, 'wprp_playlist_extra_form_headers'), 10, 2);
+                add_filter('wprp_playlist_extra_form_columns', array($this, 'wprp_playlist_extra_form_columns'), 10, 2);
             }
         }
     }
 
+    /**
+    Default Controller
+    */
     function admin_head()
     {
 ?>
@@ -67,6 +75,9 @@ jQuery(document).ready(function() {
         echo '<input type="button" id="wprp_lookup_tracks" class="button-secondary" value="' . __('Lookup Tracks', 'wp-radio-playlist') . '" />';
     }
 
+    /**
+    // ajax
+    */
     function wp_ajax_wprp_spotify_lookup_tracks() {
         $postid = wprp_get('postid');
 
@@ -106,6 +117,21 @@ jQuery(document).ready(function() {
         echo '" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>';
 
         die();
+    }
+
+    /**
+    // admin create/edit output filters
+    */
+    function wprp_playlist_extra_form_headers($input, $post) {
+        $input .= '<th>' . __('Add Spotify', 'wp-radio-playlist') . '</th>';
+        return $input;
+    }
+    function wprp_playlist_extra_form_columns($input, $post) {
+        if ($post) {
+            $
+        }
+        $input .= '<td></td>';
+        return $input;
     }
 }
 
