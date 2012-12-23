@@ -33,8 +33,8 @@ class WP_Playlists_List_Table extends WP_List_Table {
     function column_post_title($item){
         //Build row actions
         $actions = array(
-            'edit'      => sprintf('<a href="?page=%s&action=%s&playlist=%s">Edit</a>',$_REQUEST['page'],'edit',$item['ID']),
-            'delete'    => sprintf('<a href="?page=%s&action=%s&playlist=%s">Delete</a>',$_REQUEST['page'],'delete',$item['ID']),
+            'edit'      => sprintf('<a href="?page=%s&action=%s&playlist=%s">' . __('Edit', 'wp-radio-playlist') . '</a>',$_REQUEST['page'],'edit',$item['ID']),
+            'delete'    => sprintf('<a href="?page=%s&action=%s&playlist=%s">' . __('Delete', 'wp-radio-playlist') . '</a>',$_REQUEST['page'],'delete',$item['ID']),
         );
         
         //Return the title contents
