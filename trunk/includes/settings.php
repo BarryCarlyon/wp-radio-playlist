@@ -24,6 +24,12 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings'
         );
         add_settings_section(
+            'wp-radio-playlist-settings-nav',
+            __('Navigation Settings', 'wp-radio-playlist'),
+            array($this, 'settings_header_nav'),
+            'wp-radio-playlist-settings'
+        );
+        add_settings_section(
             'wp-radio-playlist-settings-extras',
             __('Extras Settings', 'wp-radio-playlist'),
             array($this, 'settings_header_extras'),
@@ -61,8 +67,30 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings-general'
         );
 
-        // extras
+        // navigation
+        add_settings_field(
+            'wp-radio-playlist-nav-enable',
+            __('Navigation Enable', 'wp-radio-playlist'),
+            array($this, 'nav_enable'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-nav'
+        );
+        add_settings_field(
+            'wp-radio-playlist-nav-target',
+            __('Navigation Target', 'wp-radio-playlist'),
+            array($this, 'nav_target'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-nav'
+        );
+        add_settings_field(
+            'wp-radio-playlist-nav-items',
+            __('Items to Add', 'wp-radio-playlist'),
+            array($this, 'nav_items'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-nav'
+        );
 
+        // extras
 
         // debug
         add_settings_field(
@@ -93,6 +121,10 @@ class Wordpress_Radio_Playlist_Settings
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-dateformat');
 
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-enable');
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-target');
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-items');
+
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-playlists');
@@ -104,6 +136,10 @@ class Wordpress_Radio_Playlist_Settings
     public function settings_header_general()
     {
         echo '';//__('General Settings', 'wp-radio-playlist');
+    }
+    public function settings_header_nav()
+    {
+        echo __('We can take over a menu item and add a drop down to it with a link to the last x Playlists', 'wp-radio-playlist');
     }
     public function settings_header_extras()
     {
@@ -160,6 +196,20 @@ class Wordpress_Radio_Playlist_Settings
         $this->option('wp-radio-playlist-dateformat', $options, 'mm/dd/yy-m/d/Y');
     }
 
+    // nav
+    public function nav_enable()
+    {
+        $this->bool('wp-radio-playlist-nav-enable', false);
+    }
+    public function nav_target()
+    {
+        $this->text('wp-radio-playlist-nav-target');
+    }
+    public function nav_items()
+    {
+        $this->number('wp-radio-playlist-nav-items', 5);
+    }
+
     // extras
 
     // debug
@@ -183,7 +233,7 @@ class Wordpress_Radio_Playlist_Settings
     {
         echo '<input name="' . $option . '" id="' . $option . '" type="checkbox" value="1" class="code" ' . checked( 1, get_option($option, $default), false ) . ' />';
     }
-    protected function text($option, $default)
+    protected function text($option, $default = '')
     {
         echo '<input name="' . $option . '" id="' . $option . '" type="text" value="' . get_option($option, $default) . '" class="code" />';
     }

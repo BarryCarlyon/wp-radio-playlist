@@ -146,56 +146,37 @@ jQuery(document).ready(function() {
     }
 
     public function menu($items, $args) {
-//        echo '<pre>';print_r($items);echo '</pre>';
         global $wpdb;
-        $target = 1769;
-        foreach ($items as &$item) {
-            if ($item->ID == $target) {
-                $item->title = __('Playlists', 'wp-radio-playlist');
+        $target = get_option('wp-radio-playlist-nav-target', '');
+        if ($target) {
+            foreach ($items as &$item) {
+                if (is_array($item->classes)) {
+                if (in_array($target, $item->classes)) {
+                    $item->title = __('Playlists', 'wp-radio-playlist');
 
-                $url = $item->url;
-                if (strpos('?', $url)) {
-                    $url .= '?';
-                } else {
-                    $url .= '&';
+                    $url = $item->url;
+                    if (strpos('?', $url)) {
+                        $url .= '?';
+                    } else {
+                        $url .= '&';
+                    }
+
+                    $query = 'SELECT * FROM ' . $wpdb->posts . '
+                        WHERE post_type = \'wprp_playlist\'
+                        AND post_status = \'publish\'
+                        ORDER BY post_date DESC LIMIT ' . get_option('wp-radio-playlist-nav-items', 5);
+                    foreach ($wpdb->get_results($query) as $row) {
+                        $extra = get_post($row->ID);
+                        $extra->post_type = 'nav_menu_item';
+                        $extra->title = strstr($row->post_date, ' ', true);
+                        $extra->menu_item_parent = $item->ID;
+                        $extra->url = $url . 'playlist=' . $extra->title;
+                        $items[] = $extra;
+                    }
                 }
-
-                $query = 'SELECT * FROM ' . $wpdb->posts . '
-                    WHERE post_type = \'wprp_playlist\'
-                    AND post_status = \'publish\'
-                    ORDER BY post_date DESC LIMIT 5';
-                foreach ($wpdb->get_results($query) as $row) {
-//                    $extra = new WP_Post($row->ID);
-                    $extra = get_post($row->ID);
-                    $extra->post_type = 'nav_menu_item';
-                    $extra->title = strstr($row->post_date, ' ', true);
-                    $extra->menu_item_parent = $target;
-                    $extra->url = $url . 'playlist=' . $extra->title;
-                    $items[] = $extra;
                 }
-
             }
         }
-//        echo '<pre>';print_r($items);echo '</pre>';
-        return $items;
-
-        echo '<pre>';
-        print_r($items);
-        exit;
-        // get lsat 5
-
-        $items .= '<li><a href="">Playlist</a><ul class="sub-menu">';
-        $query = 'SELECT * FROM ' . $wpdb->posts . '
-            WHERE post_type = \'wprp_playlist\'
-            AND post_status = \'publish\'
-            ORDER BY post_date DESC LIMIT 5';
-        foreach ($wpdb->get_results($query) as $row) {
-            $items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page">';
-            $items .= '<a href="">' . strstr($row->post_date, ' ', true) . '</a>';
-            $items .= '</li>';
-        }
-        $items .= '</ul></li>';
-//        print_r($items);
         return $items;
     }
 
