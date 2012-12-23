@@ -16,9 +16,11 @@ class Wordpress_Radio_Playlist_Extras_Spotifyplay
         if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
             if (is_admin()) {
                 if (get_option('wp-radio-playlist-raw-posts-tracks', 0)) {
-                    add_action('admin_head', array($this, 'admin_head'));
+                    add_action('admin_head', array($this, 'admin_head_default'));
                     add_action('wprp_track_meta_box_cb', array($this, 'wprp_track_meta_box_cb'));
                 }
+                add_action('admin_head', array($this, 'admin_head_page'));
+                add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
 
                 add_action('wp_ajax_wprp_spotify_lookup_tracks', array($this, 'wp_ajax_wprp_spotify_lookup_tracks'));
                 add_action('wp_ajax_wprp_spotify_get_track', array($this, 'wp_ajax_wprp_spotify_get_track'));
@@ -32,7 +34,7 @@ class Wordpress_Radio_Playlist_Extras_Spotifyplay
     /**
     Default Controller
     */
-    function admin_head()
+    function admin_head_default()
     {
 ?>
 <script type="text/javascript">
@@ -112,25 +114,61 @@ jQuery(document).ready(function() {
         $postid = wprp_get('postid');
         update_post_meta($postid, 'wprp_spotify_uri', wprp_get('uri'));
 
-        echo '<iframe src="https://embed.spotify.com/?uri=';
-        echo wprp_get('uri');
-        echo '" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>';
+        echo $this->wprp_spotify_player(wprp_get('uri'));
 
         die();
+    }
+
+    protected function wprp_spotify_player($uri, $height = 80) {
+        $x = '<iframe src="https://embed.spotify.com/?uri=';
+        $x .= $uri;
+        $x .= '" width="300" height="' . $height . '" frameborder="0" allowtransparency="true"></iframe>';
+        return $x;
     }
 
     /**
     // admin create/edit output filters
     */
+    function admin_enqueue_scripts() {
+        if (wprp_request('page') == 'wprp_playlist' || wprp_request('page') == 'wprp_playlist_create') {
+            wp_enqueue_script('jquery-ui-dialog');
+            add_thickbox();
+        }
+    }
+    function admin_head_page() {
+        if (wprp_request('page') == 'wprp_playlist' || wprp_request('page') == 'wprp_playlist_create') {
+            ?>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery('<div id="wprp_dialog">mny dialog</div>').appendTo('body');
+    jQuery('.wprp_lookup_tracks').click(function() {
+        jQuery('#wprp_dialog').dialog({
+            'dialogClass': 'media-modal wp-core-ui wp-dialog',
+            'modal': true,
+            'closeOnEscape': true,
+        });
+    });
+});
+</script>
+<?php
+        }
+    }
     function wprp_playlist_extra_form_headers($input, $post) {
         $input .= '<th>' . __('Add Spotify', 'wp-radio-playlist') . '</th>';
         return $input;
     }
-    function wprp_playlist_extra_form_columns($input, $post) {
-        if ($post) {
-            $
+    function wprp_playlist_extra_form_columns($input, $artist_track) {
+        $uri = false;
+        if (is_array($artist_track)) {
+            $uri = get_post_meta($artist_track[1], 'wprp_spotify_uri', TRUE);
         }
-        $input .= '<td></td>';
+        $input .= '<td>';
+        if ($uri) {
+            $input .= wprp_spotify_player($uri);
+        }
+        $input .= '<a href="/" class="button-secondary thickbox">' . __('Load Tracks', 'wp-radio-playlist') . '</a>';
+//        $input .= '<input type="button" class="button-secondary wprp_lookup_tracks" value="' . __('Load Tracks', 'wp-radio-playlist') . '" />';
+        $input .= '</td>';
         return $input;
     }
 }
