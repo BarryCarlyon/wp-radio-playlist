@@ -155,10 +155,10 @@ jQuery(document).ready(function() {
                     $item->title = __('Playlists', 'wp-radio-playlist');
 
                     $url = $item->url;
-                    if (strpos('?', $url)) {
-                        $url .= '?';
-                    } else {
+                    if (strpos($url, '?')) {
                         $url .= '&';
+                    } else {
+                        $url .= '?';
                     }
 
                     $query = 'SELECT * FROM ' . $wpdb->posts . '

@@ -30,6 +30,12 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings'
         );
         add_settings_section(
+            'wp-radio-playlist-settings-permalinks',
+            __('Permalinks Settings', 'wp-radio-playlist'),
+            array($this, 'settings_header_permalinks'),
+            'wp-radio-playlist-settings'
+        );
+        add_settings_section(
             'wp-radio-playlist-settings-extras',
             __('Extras Settings', 'wp-radio-playlist'),
             array($this, 'settings_header_extras'),
@@ -90,6 +96,15 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings-nav'
         );
 
+        // permalinks
+        add_settings_field(
+            'wp-radio-playlist-settings-permalinks-slug',
+            __('Items to Add', 'wp-radio-playlist'),
+            array($this, 'permalinks_slug'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-permalinks'
+        );
+
         // extras
 
         // debug
@@ -125,6 +140,8 @@ class Wordpress_Radio_Playlist_Settings
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-target');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-items');
 
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-permalinks_slug');
+
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-playlists');
@@ -141,9 +158,14 @@ class Wordpress_Radio_Playlist_Settings
     {
         echo __('We can take over a menu item and add a drop down to it with a link to the last x Playlists', 'wp-radio-playlist');
     }
+    public function settings_header_permalinks()
+    {
+        echo '<p>' . __('Permalink and Rewrite Settings', 'wp-radio-playlist') . '</p>';;
+        echo '<p>' . __('Normally a base page would be created with the [wprp-playlist] shortcode on, and that page slug is entered below, we can then rewrite based on that and do nice <i>slug/date</i> Page URL&#39;s for each playlist', 'wp-radio-playlist') . '</p>';
+    }
     public function settings_header_extras()
     {
-        echo '';//__('General Settings', 'wp-radio-playlist');
+        echo __('Optional Extras and their settings', 'wp-radio-playlist');
     }
     public function settings_header_debug()
     {
