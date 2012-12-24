@@ -350,7 +350,7 @@ jQuery(document).ready(function() {
             echo '<td>' . $x . '</td>';
             echo '<td><input type="text" class="wprp_artist" name="artist[' . $x . ']" style="width: 100%;" value="' . $artist . '" /></td>';
             echo '<td><input type="text" class="wprp_track" name="track[' . $x . ']" style="width: 100%;" value="' . $track . '" /></td>';
-            echo apply_filters('wprp_playlist_extra_form_columns', '', array($artist, $track));
+            echo apply_filters('wprp_playlist_extra_form_columns', '', $x, array($artist, $track));
             echo '</tr>';
         }
         echo '</tbody>';
