@@ -88,6 +88,10 @@ jQuery(document).ready(function() {
     */
     public function admin_init()
     {
+        if (get_option('permalink_structure')) {
+            add_rewrite_rule('^(playlists)/(\d{4})-(\d{2})-(\d{2})/?$', 'index.php?pagename=$matches[1]&playlist=$matches[2]-$matches[3]-$matches[4]', 'top');
+        }
+
         $page = wprp_request('page', '');
         if ($page == 'wprp_playlist') {
             $action = wprp_request('action', '');

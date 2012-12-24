@@ -23,14 +23,8 @@ class Wordpress_Radio_Playlist_Front
 
         add_filter('wp_nav_menu_objects', array($this, 'menu'), 10, 2);
 
-//        if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
-  //          add_shortcode('wprp_spotify_playlist', array($this, 'wprp_spotify_playlist'));
-    //    }
-
         if (get_option('permalink_structure')) {
-            add_filter('rewrite_rules_array', array($this, 'insert_rewrite_rules'));
-//            add_filter('query_vars', array($this, 'insert_query_vars'));
-            add_action('wp_loaded', array($this, 'flush_rules'));
+            add_action('init', array($this, 'permalink_structure_init'));
         }
     }
 
@@ -40,6 +34,23 @@ class Wordpress_Radio_Playlist_Front
     }
     public function wp_head()
     {
+        if (get_option('permalink_structure')) {
+                    echo '
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery(\'#wprp_playlist_selector\').change(function() {
+        jQuery(this).parent(\'form\').attr(\'method\', \'post\').attr(\'action\', \'/playlists/\' + jQuery(this).val() + \'/\').submit();
+    });
+});
+</script>
+<style type="text/css">
+#wprp_playlist_selector {
+    float: right;
+}
+</style>
+';
+            return;
+        }
         echo '
 <script type="text/javascript">
 jQuery(document).ready(function() {
@@ -58,7 +69,8 @@ jQuery(document).ready(function() {
 
     public function wprp_playlist($args = array())
     {
-        $args['playlist'] = isset($args['playlist']) ? $args['playlist'] : wprp_request('playlist', false);
+        global $wp_query;
+        $args['playlist'] = isset($wp_query->query_vars['playlist']) && $wp_query->query_vars['playlist'] ? $wp_query->query_vars['playlist'] : (isset($args['playlist']) ? $args['playlist'] : wprp_request('playlist', false));
         $args['selector'] = isset($args['selector']) ? $args['selector'] : true;
         $args['change'] = isset($args['change']) ? $args['change'] : true;
 
@@ -130,7 +142,9 @@ jQuery(document).ready(function() {
         }
 
         $html = '<form action="" method="get">';
-        $html .= '<input type="hidden" name="page_id" value="' . wprp_request('page_id') . '" />';
+        if (!get_option('permalink_structure')) {
+            $html .= '<input type="hidden" name="page_id" value="' . wprp_request('page_id') . '" />';
+        }
         $html .= '<select name="playlist" id="wprp_playlist_selector">';
         
         global $wpdb;
@@ -164,7 +178,8 @@ jQuery(document).ready(function() {
                     $slash = false;
 //                    if (get_option('wp-radio-playlist-permalinks-slug')) {
                     if (get_option('permalink_structure')) {
-                        $url = home_url(get_option('wp-radio-playlist-permalinks-slug'));
+//                        $url = home_url(get_option('wp-radio-playlist-permalinks-slug'));
+                        $url = $item->url;
                         $slash = true;
                     } else {
                         $url = $item->url;
@@ -185,7 +200,7 @@ jQuery(document).ready(function() {
                         $extra->title = strstr($row->post_date, ' ', true);
                         $extra->menu_item_parent = $item->ID;
                         if ($slash) {
-                            $extra->url = trailingslashit($url . '/' . $extra->title);
+                            $extra->url = trailingslashit($url . $extra->title);
                         } else {
                             $extra->url = $url . 'playlist=' . $extra->title;
                         }
@@ -199,16 +214,7 @@ jQuery(document).ready(function() {
     }
 
     // premalinks
-    public function insert_rewrite_rules() {
-        $rules = get_option( 'rewrite_rules' );
-        if (!isset($rules['(playlist)/(\d{4})-(\d{2})-(\d{2})'])) {
-            global $wp_rewrite;
-            $wp_rewrite->flush_rules();
-        }
-    }
-    public function flush_rules($rules) {
-        $newrules = array();
-        $newrules['(playlist)/(\d{4})-(\d{2})-(\d{2})$'] = 'index.php?pagename=$matches[1]&playlist=$matches[2]-$matches[3]-$matches[4]';
-        return $newrules + $rules;
+    public function permalink_structure_init() {
+        add_rewrite_tag('%playlist%', '([^&]+)');
     }
 }
