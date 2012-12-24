@@ -104,6 +104,7 @@ class Wordpress_Radio_Playlist_Settings
         );
 
         // permalinks
+/*
         add_settings_field(
             'wp-radio-playlist-settings-permalinks-slug',
             __('Slug', 'wp-radio-playlist'),
@@ -111,6 +112,7 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings',
             'wp-radio-playlist-settings-permalinks'
         );
+*/
 
         // extras
 

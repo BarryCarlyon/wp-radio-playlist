@@ -26,6 +26,12 @@ class Wordpress_Radio_Playlist_Front
 //        if (get_option('wp-radio-playlist-extras-spotifyplay', 0)) {
   //          add_shortcode('wprp_spotify_playlist', array($this, 'wprp_spotify_playlist'));
     //    }
+
+        if (get_option('permalink_structure')) {
+            add_filter('rewrite_rules_array', array($this, 'insert_rewrite_rules'));
+//            add_filter('query_vars', array($this, 'insert_query_vars'));
+            add_action('wp_loaded', array($this, 'flush_rules'));
+        }
     }
 
     public function wp_enqueue_scripts()
@@ -155,15 +161,18 @@ jQuery(document).ready(function() {
                     $item->title = get_option('wp-radio-playlist-nav-parent-name') ? get_option('wp-radio-playlist-nav-parent-name') : $item->title;//, __('Playlists', 'wp-radio-playlist'));
 
                     // permalink override
-                    if (get_option('wp-radio-playlist-permalinks-slug')) {
+                    $slash = false;
+//                    if (get_option('wp-radio-playlist-permalinks-slug')) {
+                    if (get_option('permalink_structure')) {
                         $url = home_url(get_option('wp-radio-playlist-permalinks-slug'));
+                        $slash = true;
                     } else {
                         $url = $item->url;
-                    }
-                    if (strpos($url, '?')) {
-                        $url .= '&';
-                    } else {
-                        $url = trailingslashit($url) . '?';
+                        if (strpos($url, '?')) {
+                            $url .= '&';
+                        } else {
+                            $url = trailingslashit($url) . '?';
+                        }
                     }
 
                     $query = 'SELECT * FROM ' . $wpdb->posts . '
@@ -175,7 +184,11 @@ jQuery(document).ready(function() {
                         $extra->post_type = 'nav_menu_item';
                         $extra->title = strstr($row->post_date, ' ', true);
                         $extra->menu_item_parent = $item->ID;
-                        $extra->url = $url . 'playlist=' . $extra->title;
+                        if ($slash) {
+                            $extra->url = trailingslashit($url . '/' . $extra->title);
+                        } else {
+                            $extra->url = $url . 'playlist=' . $extra->title;
+                        }
                         $items[] = $extra;
                     }
                 }
@@ -185,9 +198,17 @@ jQuery(document).ready(function() {
         return $items;
     }
 
-    // Spotify
-    public function wprp_spotify_playlist()
-    {
-//<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:5Z7ygHQo02SUrFmcgpwsKW,1x6ACsKV4UdWS2FMuPFUiT,4bi73jCM02fMpkI11Lqmfe" frameborder="0" allowtransparency="true"></iframe>
+    // premalinks
+    public function insert_rewrite_rules() {
+        $rules = get_option( 'rewrite_rules' );
+        if (!isset($rules['(playlist)/(\d{4})-(\d{2})-(\d{2})'])) {
+            global $wp_rewrite;
+            $wp_rewrite->flush_rules();
+        }
+    }
+    public function flush_rules($rules) {
+        $newrules = array();
+        $newrules['(playlist)/(\d{4})-(\d{2})-(\d{2})$'] = 'index.php?pagename=$matches[1]&playlist=$matches[2]-$matches[3]-$matches[4]';
+        return $newrules + $rules;
     }
 }
