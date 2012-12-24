@@ -82,8 +82,15 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings-nav'
         );
         add_settings_field(
+            'wp-radio-playlist-nav-parent-name',
+            __('Override Item Name, leave blank for Default', 'wp-radio-playlist'),
+            array($this, 'nav_parent_name'),
+            'wp-radio-playlist-settings',
+            'wp-radio-playlist-settings-nav'
+        );
+        add_settings_field(
             'wp-radio-playlist-nav-target',
-            __('Navigation Target', 'wp-radio-playlist'),
+            __('Navigation Target (CSS Class)', 'wp-radio-playlist'),
             array($this, 'nav_target'),
             'wp-radio-playlist-settings',
             'wp-radio-playlist-settings-nav'
@@ -99,7 +106,7 @@ class Wordpress_Radio_Playlist_Settings
         // permalinks
         add_settings_field(
             'wp-radio-playlist-settings-permalinks-slug',
-            __('Items to Add', 'wp-radio-playlist'),
+            __('Slug', 'wp-radio-playlist'),
             array($this, 'permalinks_slug'),
             'wp-radio-playlist-settings',
             'wp-radio-playlist-settings-permalinks'
@@ -137,10 +144,11 @@ class Wordpress_Radio_Playlist_Settings
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-dateformat');
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-enable');
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-parent-name');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-target');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-nav-items');
 
-        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-permalinks_slug');
+        register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-permalinks-slug');
 
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-tracks');
         register_setting('wp-radio-playlist-settings', 'wp-radio-playlist-raw-posts-artists');
@@ -160,8 +168,9 @@ class Wordpress_Radio_Playlist_Settings
     }
     public function settings_header_permalinks()
     {
-        echo '<p>' . __('Permalink and Rewrite Settings', 'wp-radio-playlist') . '</p>';;
-        echo '<p>' . __('Normally a base page would be created with the [wprp-playlist] shortcode on, and that page slug is entered below, we can then rewrite based on that and do nice <i>slug/date</i> Page URL&#39;s for each playlist', 'wp-radio-playlist') . '</p>';
+        echo '<p>' . __('Permalink and Rewrite Settings', 'wp-radio-playlist') . '</p>';
+        echo '<p>' . __('Normally a base page would be created with the <pre>[wprp-playlist]</pre> shortcode on, and that page slug is entered below, we can then rewrite based on that and do nice <i>slug/date</i> Page URL&#39;s for each playlist', 'wp-radio-playlist') . '</p>';
+        echo '<p>' . __('This Slug will also overwrite the Menu Item&#39;s URL if enabled above', 'wp-radio-playlist') . '</p>';
     }
     public function settings_header_extras()
     {
@@ -223,6 +232,10 @@ class Wordpress_Radio_Playlist_Settings
     {
         $this->bool('wp-radio-playlist-nav-enable', false);
     }
+    public function nav_parent_name()
+    {
+        $this->text('wp-radio-playlist-nav-parent-name');//, __('Playlists', 'wp-radio-playlist'));
+    }
     public function nav_target()
     {
         $this->text('wp-radio-playlist-nav-target');
@@ -230,6 +243,12 @@ class Wordpress_Radio_Playlist_Settings
     public function nav_items()
     {
         $this->number('wp-radio-playlist-nav-items', 5);
+    }
+
+    // permalinks
+    public function permalinks_slug()
+    {
+        $this->text('wp-radio-playlist-permalinks-slug', '');
     }
 
     // extras

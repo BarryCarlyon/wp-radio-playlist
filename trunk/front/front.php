@@ -152,13 +152,18 @@ jQuery(document).ready(function() {
             foreach ($items as &$item) {
                 if (is_array($item->classes)) {
                 if (in_array($target, $item->classes)) {
-                    $item->title = __('Playlists', 'wp-radio-playlist');
+                    $item->title = get_option('wp-radio-playlist-nav-parent-name') ? get_option('wp-radio-playlist-nav-parent-name') : $item->title;//, __('Playlists', 'wp-radio-playlist'));
 
-                    $url = $item->url;
+                    // permalink override
+                    if (get_option('wp-radio-playlist-permalinks-slug')) {
+                        $url = home_url(get_option('wp-radio-playlist-permalinks-slug'));
+                    } else {
+                        $url = $item->url;
+                    }
                     if (strpos($url, '?')) {
                         $url .= '&';
                     } else {
-                        $url .= '?';
+                        $url = trailingslashit($url) . '?';
                     }
 
                     $query = 'SELECT * FROM ' . $wpdb->posts . '
