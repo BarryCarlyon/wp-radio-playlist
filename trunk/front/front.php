@@ -35,11 +35,12 @@ class Wordpress_Radio_Playlist_Front
     public function wp_head()
     {
         if (get_option('permalink_structure')) {
-                    echo '
+            $target = get_option('wp-radio-playlist-permalinks-slug', get_permalink());
+            echo '
 <script type="text/javascript">
 jQuery(document).ready(function() {
     jQuery(\'#wprp_playlist_selector\').change(function() {
-        jQuery(this).parent(\'form\').attr(\'method\', \'post\').attr(\'action\', \'/playlists/\' + jQuery(this).val() + \'/\').submit();
+        jQuery(this).parent(\'form\').attr(\'method\', \'post\').attr(\'action\', \'/' . $target . '/\' + jQuery(this).val() + \'/\').submit();
     });
 });
 </script>
@@ -172,15 +173,18 @@ jQuery(document).ready(function() {
             foreach ($items as &$item) {
                 if (is_array($item->classes)) {
                 if (in_array($target, $item->classes)) {
-                    $item->title = get_option('wp-radio-playlist-nav-parent-name') ? get_option('wp-radio-playlist-nav-parent-name') : $item->title;//, __('Playlists', 'wp-radio-playlist'));
+                    $item->title = get_option('wp-radio-playlist-nav-parent-name') ? get_option('wp-radio-playlist-nav-parent-name') : $item->title;
 
                     // permalink override
                     $slash = false;
-//                    if (get_option('wp-radio-playlist-permalinks-slug')) {
                     if (get_option('permalink_structure')) {
-//                        $url = home_url(get_option('wp-radio-playlist-permalinks-slug'));
-                        $url = $item->url;
-                        $slash = true;
+                        if (get_option('wp-radio-playlist-permalinks-slug')) {
+                            $url = '/' . get_option('wp-radio-playlist-permalinks-slug') . '/';
+                            $item->url = $url;
+                            $slash = true;
+                        } else {
+                            $url = $item->url . '?';
+                        }
                     } else {
                         $url = $item->url;
                         if (strpos($url, '?')) {

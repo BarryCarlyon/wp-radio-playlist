@@ -15,6 +15,10 @@ class Wordpress_Radio_Playlist_Settings
 
     public function admin_init()
     {
+        if (wprp_get('settings-updated')) {
+            global $wp_rewrite;
+            $wp_rewrite->flush_rules();
+        }
         // register a section
         // id, title, callback, page slug
         add_settings_section(
@@ -104,7 +108,6 @@ class Wordpress_Radio_Playlist_Settings
         );
 
         // permalinks
-/*
         add_settings_field(
             'wp-radio-playlist-settings-permalinks-slug',
             __('Slug', 'wp-radio-playlist'),
@@ -112,7 +115,6 @@ class Wordpress_Radio_Playlist_Settings
             'wp-radio-playlist-settings',
             'wp-radio-playlist-settings-permalinks'
         );
-*/
 
         // extras
 
@@ -172,7 +174,7 @@ class Wordpress_Radio_Playlist_Settings
     {
         echo '<p>' . __('Permalink and Rewrite Settings', 'wp-radio-playlist') . '</p>';
         echo '<p>' . __('Normally a base page would be created with the <pre>[wprp-playlist]</pre> shortcode on, and that page slug is entered below, we can then rewrite based on that and do nice <i>slug/date</i> Page URL&#39;s for each playlist', 'wp-radio-playlist') . '</p>';
-        echo '<p>' . __('This Slug will also overwrite the Menu Item&#39;s URL if enabled above', 'wp-radio-playlist') . '</p>';
+        echo '<p>' . __('A page needs to exist at the slug below, as we override the targetted menu item above with the Slug below', 'wp-radio-playlist') . '</p>';
     }
     public function settings_header_extras()
     {
