@@ -129,9 +129,9 @@ jQuery(document).ready(function() {
 //            if ($track->artists[0]->name == $artist_name) {
             // yes case sensitive.... the external resource is more likely to be correct
             if (strcmp($track->artists[0]->name, $artist_name)) {
-                echo $this_track;
-            } else {
                 $not_artist_matches .= $this_track;
+            } else {
+                echo $this_track;
             }
         }
         if (strlen($not_artist_matches)) {
@@ -196,7 +196,7 @@ jQuery(document).ready(function() {
 
         foreach ($tracks->tracks as $track) {
 //            if ($track->artists[0]->name == $artist_name) {
-            if (strcmp($track->artists[0]->name, $artist_name)) {
+            if (!strcmp($track->artists[0]->name, $artist_name)) {
                 update_post_meta($postid, 'wprp_spotify_uri', $track->href);
                 echo $this->_wprp_spotify_player($track->href);
                 die();
