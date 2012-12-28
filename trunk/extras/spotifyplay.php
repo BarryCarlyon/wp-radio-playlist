@@ -112,19 +112,31 @@ jQuery(document).ready(function() {
             die();
         }
 
+        $not_artist_matches = '';
+
         echo '<table>';
         foreach ($tracks->tracks as $track) {
-            if ($track->artists[0]->name == $artist_name) {
-                echo '<tr><td>';
-                echo '<iframe src="https://embed.spotify.com/?uri=';
-                echo $track->href;
-                echo '" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>';
-                echo '</td><td>';
-                echo '<input type="button" class="wprp_use_track" class="button-secondary" value="' . __('Use Track', 'wp-radio-playlist') . '" data-uri="';
-                echo $track->href;
-                echo '" />';
-                echo '</td></tr>';
+            $this_track = '<tr><td>';
+            $this_track .= '<iframe src="https://embed.spotify.com/?uri=';
+            $this_track .= $track->href;
+            $this_track .= '" width="300" height="80" frameborder="0" allowtransparency="true"></iframe>';
+            $this_track .= '</td><td>';
+            $this_track .= '<input type="button" class="wprp_use_track" class="button-secondary" value="' . __('Use Track', 'wp-radio-playlist') . '" data-uri="';
+            $this_track .= $track->href;
+            $this_track .= '" />';
+            $this_track .= '</td></tr>';
+
+//            if ($track->artists[0]->name == $artist_name) {
+            // yes case sensitive.... the external resource is more likely to be correct
+            if (strcmp($track->artists[0]->name, $artist_name)) {
+                echo $this_track;
+            } else {
+                $not_artist_matches .= $this_track;
             }
+        }
+        if (strlen($not_artist_matches)) {
+            echo '<tr><td colspan="2">' . __('Track Name not Artist Match (consider correcting the Artist?)', 'wp-radio-playlist') . '</td></tr>';
+            echo $not_artist_matches;
         }
         echo '</table>';
         die();
@@ -183,13 +195,14 @@ jQuery(document).ready(function() {
         }
 
         foreach ($tracks->tracks as $track) {
-            if ($track->artists[0]->name == $artist_name) {
+//            if ($track->artists[0]->name == $artist_name) {
+            if (strcmp($track->artists[0]->name, $artist_name)) {
                 update_post_meta($postid, 'wprp_spotify_uri', $track->href);
                 echo $this->_wprp_spotify_player($track->href);
                 die();
             }
         }
-        echo __('No Valid Tracks Found', 'wp-radio-playlist');
+        echo __('No Valid Tracks Found (Specific Track Name/Artist Name Match)', 'wp-radio-playlist');
         die();
     }
 
