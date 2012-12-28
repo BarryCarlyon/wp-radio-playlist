@@ -178,8 +178,9 @@ jQuery(document).ready(function() {
                     // permalink override
                     $slash = false;
                     if (get_option('permalink_structure')) {
+                        // force override / normally not used!
                         if (get_option('wp-radio-playlist-permalinks-slug')) {
-                            $url = '/' . get_option('wp-radio-playlist-permalinks-slug') . '/';
+                            $url = trailingslashit(home_url(get_option('wp-radio-playlist-permalinks-slug')));
                             $item->url = $url;
                             $slash = true;
                         } else {

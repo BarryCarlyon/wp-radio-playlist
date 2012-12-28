@@ -174,7 +174,8 @@ class Wordpress_Radio_Playlist_Settings
     {
         echo '<p>' . __('Permalink and Rewrite Settings', 'wp-radio-playlist') . '</p>';
         echo '<p>' . __('Normally a base page would be created with the <pre>[wprp-playlist]</pre> shortcode on, and that page slug is entered below, we can then rewrite based on that and do nice <i>slug/date</i> Page URL&#39;s for each playlist', 'wp-radio-playlist') . '</p>';
-        echo '<p>' . __('A page needs to exist at the slug below, as we override the targetted menu item above with the Slug below', 'wp-radio-playlist') . '</p>';
+        echo '<p>' . __('A page needs to exist at the slug below, so the slug below should match what the targgetted menu item&39;s slug is', 'wp-radio-playlist') . '</p>';
+//        echo '<p>' . __('A page needs to exist at the slug below, as we override the targetted menu item above with the Slug below', 'wp-radio-playlist') . '</p>';
     }
     public function settings_header_extras()
     {
