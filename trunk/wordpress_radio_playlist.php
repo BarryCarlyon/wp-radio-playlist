@@ -95,8 +95,10 @@ class Wordpress_Radio_Playlist
                     if (get_option($bool, 0)) {
                         new $class();
                     }
-                    $class .= '_Settings';
-                    new $class();
+                    if (is_admin()) {
+                        $class .= '_Settings';
+                        new $class();
+                    }
                 }
             }
         }
