@@ -26,9 +26,13 @@ class Wordpress_Radio_Playlist_Extras_Spotifyplay
                 add_action('wp_ajax_wprp_spotify_get_track', array($this, 'wp_ajax_wprp_spotify_get_track'));
                 add_action('wp_ajax_wprp_spotify_get_first_track', array($this, 'wp_ajax_wprp_spotify_get_first_track'));
 
-                add_filter('wprp_playlist_extra_form_headers', array($this, 'wprp_playlist_extra_form_headers'), 10, 2);
-                add_filter('wprp_playlist_extra_form_columns', array($this, 'wprp_playlist_extra_form_columns'), 10, 3);
+                add_filter('wprp_playlist_admin_extra_form_headers', array($this, 'wprp_playlist_admin_extra_form_headers'), 10, 2);
+                add_filter('wprp_playlist_admin_extra_form_columns', array($this, 'wprp_playlist_admin_extra_form_columns'), 10, 3);
+
+                return;
             }
+
+            add_filter('wprp_playlist_front_shortcode_wprp_playlist_columns_after_change', array($this, 'wprp_playlist_front_shortcode_wprp_playlist_columns_after_change'), 10, 3);
         }
     }
 
@@ -143,7 +147,7 @@ jQuery(document).ready(function() {
             }
         }
 
-        echo $this->wprp_spotify_player(wprp_get('uri'));
+        echo $this->_wprp_spotify_player(wprp_get('uri'));
 
         die();
     }
@@ -181,7 +185,7 @@ jQuery(document).ready(function() {
         foreach ($tracks->tracks as $track) {
             if ($track->artists[0]->name == $artist_name) {
                 update_post_meta($postid, 'wprp_spotify_uri', $track->href);
-                echo $this->wprp_spotify_player($track->href);
+                echo $this->_wprp_spotify_player($track->href);
                 die();
             }
         }
@@ -189,7 +193,7 @@ jQuery(document).ready(function() {
         die();
     }
 
-    protected function wprp_spotify_player($uri, $height = 80) {
+    private function _wprp_spotify_player($uri, $height = 80) {
         $x = '<iframe src="https://embed.spotify.com/?uri=';
         $x .= $uri;
         $x .= '" width="300" height="' . $height . '" frameborder="0" allowtransparency="true"></iframe>';
@@ -247,12 +251,12 @@ jQuery(document).ready(function() {
         }
     }
 
-    function wprp_playlist_extra_form_headers($input, $post) {
+    function wprp_playlist_admin_extra_form_headers($input, $post) {
         $input .= '<th style="width: 300px;">' . __('Add Spotify', 'wp-radio-playlist') . '</th>';
         $input .= '<th>' . __('Search Spotify', 'wp-radio-playlist') . '</th>';
         return $input;
     }
-    function wprp_playlist_extra_form_columns($input, $x, $artist_track) {
+    function wprp_playlist_admin_extra_form_columns($input, $x, $artist_track) {
         $uri = '';
         $input .= '<td class="wprp_selected_track_player_' . $x . '">';
         if (is_array($artist_track)) {
@@ -261,13 +265,24 @@ jQuery(document).ready(function() {
             $uri = get_post_meta($track_id, 'wprp_spotify_uri', TRUE);
         }
         if ($uri) {
-            $input .= $this->wprp_spotify_player($uri);
+            $input .= $this->_wprp_spotify_player($uri);
         }
         $input .= '</td><td>';
         $input .= '<input type="button" class="button-secondary wprp_load_tracks" data-x="' . $x . '" value="' . __('Load Tracks', 'wp-radio-playlist') . '" />';
         $input .= '<input type="button" class="button-secondary wprp_load_track" data-x="' . $x . '" value="' . __('Load First Track', 'wp-radio-playlist') . '" />';
         $input .= '</td>';
         return $input;
+    }
+
+    /**
+    Front
+    */
+    public function wprp_playlist_front_shortcode_wprp_playlist_columns_after_change($html, $pos, $artist_track) {
+        $uri = get_post_meta($artist_track[1], 'wprp_spotify_uri', TRUE);
+        if ($uri) {
+            $html = '<td>' . $this->_wprp_spotify_player($uri) . '</td>';
+        }
+        return $html;
     }
 }
 

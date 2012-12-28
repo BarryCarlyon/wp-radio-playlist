@@ -124,9 +124,11 @@ jQuery(document).ready(function() {
                 $html .= '<th>' . $pos . '</th>';
                 $html .= '<td>' . apply_filters('wprp_artist', wprp_item_title($entry[0])) . ' </td>';
                 $html .= '<td>' . apply_filters('wprp_track', wprp_item_title($entry[1])) . ' </td>';
+                $html .= apply_filters('wprp_playlist_front_shortcode_wprp_playlist_columns_before_change', '', $pos, $entry);
                 if ($args['change']) {
                     $html .= '<td>' . $change . '</td>';
                 }
+                $html .= apply_filters('wprp_playlist_front_shortcode_wprp_playlist_columns_after_change', '', $pos, $entry);
                 $html .= '</tr>';
             }
 
