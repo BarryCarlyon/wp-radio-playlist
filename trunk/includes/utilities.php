@@ -185,3 +185,33 @@ function wprp_calculate_change($track_id, $artist_id, $this_date, $last_date = f
         return $transient_result;
     }
 }
+
+function wprp_get_latest_playlist_date() {
+    global $wpdb;
+    $query = 'SELECT post_date FROM ' . $wpdb->posts . '
+        WHERE post_type = \'wprp_playlist\'
+        AND post_status = \'publish\'
+        ORDER BY post_date DESC LIMIT 1
+    ';
+    $date = $wpdb->get_var($query);
+    return strstr($date, ' ', true);
+}
+function wprp_get_latest_playlist() {
+    return wprp_get_playlist_by_date();
+}
+function wprp_get_playlist_by_date($date = false) {
+    global $wpdb;
+    $query = 'SELECT * FROM ' . $wpdb->posts . '
+        WHERE post_type = \'wprp_playlist\'
+    ';
+
+    if ($date) {
+        $query .= ' AND post_date = \'' . $date . ' 00:00:00\' ';
+    } else {
+        $query .= ' AND post_status = \'publish\' ';
+    }
+
+    $query .= '
+        ORDER BY post_date DESC LIMIT 1';
+    return $wpdb->get_row($query);
+}

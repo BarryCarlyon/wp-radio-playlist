@@ -76,19 +76,7 @@ jQuery(document).ready(function() {
         $args['change'] = isset($args['change']) ? $args['change'] : true;
 
         // get latest playlist
-        global $wpdb;
-        $query = 'SELECT * FROM ' . $wpdb->posts . '
-            WHERE post_type = \'wprp_playlist\'
-            AND post_status = \'publish\'
-        ';
-
-        if ($args['playlist']) {
-            $query .= 'AND post_date = \'' . $args['playlist'] . ' 00:00:00\'';
-        }
-
-        $query .= '
-            ORDER BY post_date DESC LIMIT 1';
-        $row = $wpdb->get_row($query);
+        $row = wprp_get_playlist_by_date($args['playlist']);
         if ($row) {
             $playlist = json_decode(get_post_meta($row->ID, 'wprp_json', true));
 
